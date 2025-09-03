@@ -1,0 +1,2462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevEnglish Pro - 计算机行业国际外包英语学习平台</title>
+    <style>
+        :root {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #252526;
+            --bg-tertiary: #2d2d30;
+            --bg-hover: #3e3e42;
+            --text-primary: #cccccc;
+            --text-secondary: #969696;
+            --accent-blue: #007acc;
+            --accent-green: #4ec9b0;
+            --accent-orange: #ce9178;
+            --accent-purple: #c586c0;
+            --border-color: #464647;
+            --success: #4ec9b0;
+            --warning: #dcdcaa;
+            --error: #f48771;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .auth-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: var(--bg-primary);
+        }
+
+        .auth-box {
+            background: var(--bg-secondary);
+            padding: 40px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-title {
+            text-align: center;
+            color: var(--accent-green);
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-secondary);
+        }
+
+        .auth-switch a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        .sidebar {
+            width: 60px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            transition: width 0.3s;
+        }
+
+        .sidebar.expanded {
+            width: 250px;
+        }
+
+        .sidebar-item {
+            width: 40px;
+            height: 40px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .sidebar-item:hover {
+            background: var(--bg-hover);
+            color: var(--accent-blue);
+        }
+
+        .sidebar-item.active {
+            background: var(--bg-hover);
+            color: var(--accent-blue);
+        }
+
+        .sidebar-item-text {
+            display: none;
+            position: absolute;
+            left: 50px;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        .sidebar.expanded .sidebar-item {
+            width: 220px;
+            justify-content: flex-start;
+            padding: 0 20px;
+        }
+
+        .sidebar.expanded .sidebar-item-text {
+            display: block;
+            position: static;
+            margin-left: 15px;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            height: 60px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-size: 18px;
+            color: var(--accent-green);
+            display: flex;
+            align-items: center;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 30px;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+        }
+
+        .logout-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .logout-btn:hover {
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            color: var(--accent-blue);
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px rgba(0, 122, 204, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            color: var(--accent-green);
+        }
+
+        .btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #0098ff;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .term-card {
+            background: var(--bg-tertiary);
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .term-card:hover {
+            border-left-color: var(--accent-blue);
+            transform: translateX(5px);
+        }
+
+        .term-title {
+            color: var(--accent-orange);
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .term-category {
+            display: inline-block;
+            background: var(--bg-hover);
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: var(--accent-purple);
+            margin-right: 10px;
+        }
+
+        .term-definition {
+            color: var(--text-secondary);
+            margin-top: 10px;
+            display: none;
+        }
+
+        .term-card.expanded .term-definition {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+        }
+
+        .error-message {
+            background: rgba(244, 135, 113, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .success-message {
+            background: rgba(78, 201, 176, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .quiz-container {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .quiz-question {
+            font-size: 18px;
+            color: var(--accent-green);
+            margin-bottom: 20px;
+        }
+
+        .quiz-option {
+            background: var(--bg-tertiary);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--accent-blue);
+            transform: translateX(5px);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--success);
+            background: rgba(78, 201, 176, 0.1);
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--error);
+            background: rgba(244, 135, 113, 0.1);
+        }
+
+        .scenario-container {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .scenario-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .scenario-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 24px;
+        }
+
+        .scenario-info {
+            flex: 1;
+        }
+
+        .scenario-name {
+            color: var(--accent-green);
+            font-size: 16px;
+        }
+
+        .scenario-role {
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .scenario-meta {
+            display: flex;
+            gap: 15px;
+            margin: 10px 0;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .difficulty-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .difficulty-beginner {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .difficulty-intermediate {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+        }
+
+        .difficulty-advanced {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+        }
+
+        /* Enhanced Chat Dialog */
+        .chat-dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 900px;
+            height: 80vh;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .chat-dialog.active {
+            display: flex;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .chat-sidebar {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .response-templates h3 {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .template-item {
+            background: var(--bg-primary);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .template-item:hover {
+            border-color: var(--accent-green);
+            background: rgba(0, 255, 135, 0.05);
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+        }
+
+        .voice-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent-purple);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .voice-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .voice-btn.recording {
+            background: var(--error-color);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(244, 67, 54, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+        }
+
+        .chat-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 999;
+        }
+
+        .chat-overlay.active {
+            display: block;
+        }
+
+        /* Speaking highlight */
+        .message-bubble.speaking {
+            animation: speakingPulse 1.5s infinite;
+            border-color: var(--accent-green) !important;
+            box-shadow: 0 0 20px rgba(0, 255, 135, 0.3);
+        }
+
+        @keyframes speakingPulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
+        /* Notification styles */
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .auto-speak-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+        }
+
+        .auto-speak-toggle input[type="checkbox"] {
+            width: 40px;
+            height: 20px;
+            appearance: none;
+            background: var(--border-color);
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .auto-speak-toggle input[type="checkbox"]:checked {
+            background: var(--accent-green);
+        }
+
+        .auto-speak-toggle input[type="checkbox"]::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .auto-speak-toggle input[type="checkbox"]:checked::after {
+            transform: translateX(20px);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border: none;
+            color: white;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px;
+            border-radius: 6px;
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .daily-tasks {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--bg-tertiary);
+            margin: 10px 0;
+            border-radius: 6px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .task-item:hover {
+            transform: translateX(5px);
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent-blue);
+            border-radius: 4px;
+            margin-right: 15px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .task-item.completed .task-checkbox {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .task-item.completed .task-checkbox::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-title {
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .task-reward {
+            color: var(--accent-orange);
+            font-size: 12px;
+        }
+
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .achievement-item {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .achievement-item.unlocked {
+            border-color: var(--accent-green);
+            background: rgba(78, 201, 176, 0.1);
+        }
+
+        .achievement-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .achievement-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .achievement-item.locked .achievement-icon {
+            filter: grayscale(1);
+            opacity: 0.3;
+        }
+
+        .leaderboard {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--bg-tertiary);
+            margin: 10px 0;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .leaderboard-item:hover {
+            transform: translateX(5px);
+        }
+
+        .rank {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .rank.gold { background: gold; color: black; }
+        .rank.silver { background: silver; color: black; }
+        .rank.bronze { background: #cd7f32; color: white; }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .user-score {
+            color: var(--accent-green);
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+            }
+            
+            .sidebar.expanded {
+                position: absolute;
+                z-index: 100;
+                height: 100vh;
+            }
+
+            .achievement-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录/注册界面 (已禁用) -->
+    <div class="auth-container" id="authContainer" style="display: none;">
+        <div class="auth-box">
+            <h2 class="auth-title">DevEnglish Pro</h2>
+            
+            <!-- 登录表单 -->
+            <form id="loginForm" style="display: block;">
+                <div class="form-group">
+                    <label class="form-label">用户名/邮箱</label>
+                    <input type="text" class="form-input" id="loginUsername" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">密码</label>
+                    <input type="password" class="form-input" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">登录</button>
+                <div class="auth-switch">
+                    没有账号？<a onclick="switchToRegister()">立即注册</a>
+                </div>
+                <div class="auth-switch" style="margin-top: 20px;">
+                    <button type="button" class="btn" onclick="skipAuth()" style="width: 100%; background: var(--accent-green);">
+                        跳过登录，直接体验 →
+                    </button>
+                </div>
+            </form>
+            
+            <!-- 注册表单 -->
+            <form id="registerForm" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">用户名</label>
+                    <input type="text" class="form-input" id="registerUsername" required pattern="^[a-zA-Z0-9_]{3,20}$">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">邮箱</label>
+                    <input type="email" class="form-input" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">密码</label>
+                    <input type="password" class="form-input" id="registerPassword" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">昵称</label>
+                    <input type="text" class="form-input" id="registerNickname">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">英语水平</label>
+                    <select class="form-input" id="registerLevel">
+                        <option value="BEGINNER">初级</option>
+                        <option value="INTERMEDIATE" selected>中级</option>
+                        <option value="ADVANCED">高级</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">注册</button>
+                <div class="auth-switch">
+                    已有账号？<a onclick="switchToLogin()">立即登录</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 主应用界面 -->
+    <div class="app-container" id="appContainer" style="display: flex;">
+        <!-- 侧边栏 -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-item active" data-section="dashboard" title="仪表板">
+                <span>📊</span>
+                <span class="sidebar-item-text">仪表板</span>
+            </div>
+            <div class="sidebar-item" data-section="vocabulary" title="专业词汇">
+                <span>📚</span>
+                <span class="sidebar-item-text">专业词汇</span>
+            </div>
+            <div class="sidebar-item" data-section="scenarios" title="场景模拟">
+                <span>💬</span>
+                <span class="sidebar-item-text">场景模拟</span>
+            </div>
+            <div class="sidebar-item" data-section="coding" title="编程挑战">
+                <span>💻</span>
+                <span class="sidebar-item-text">编程挑战</span>
+            </div>
+            <div class="sidebar-item" data-section="achievements" title="成就系统">
+                <span>🏆</span>
+                <span class="sidebar-item-text">成就系统</span>
+            </div>
+        </nav>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 顶部栏 -->
+            <header class="header">
+                <div class="header-title">
+                    <span style="margin-right: 10px;">🚀</span>
+                    DevEnglish Pro
+                </div>
+                <div class="header-user">
+                    <div class="header-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="streak">0</div>
+                            <div class="stat-label">连续天数</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="level">1</div>
+                            <div class="stat-label">当前等级</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="xp">0</div>
+                            <div class="stat-label">经验值</div>
+                        </div>
+                    </div>
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <span id="username">用户</span>
+                    <button class="logout-btn" onclick="logout()">退出</button>
+                </div>
+            </header>
+
+            <!-- 内容区域 -->
+            <div class="content-area">
+                <!-- 仪表板 -->
+                <section class="section active" id="dashboard">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">学习进度概览</h2>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressBar" style="width: 0%;"></div>
+                        </div>
+                        <p style="color: var(--text-secondary); margin-top: 10px;" id="progressText">
+                            今日目标完成度: 0%
+                        </p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">今日任务</h2>
+                        </div>
+                        <div class="daily-tasks" id="dailyTasks">
+                            <div class="loading">加载任务中...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 专业词汇 -->
+                <section class="section" id="vocabulary">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">技术术语库</h2>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <input type="text" id="vocabularySearch" placeholder="搜索术语..." 
+                                   style="width: 100%; padding: 10px; background: var(--bg-tertiary); 
+                                          border: 1px solid var(--border-color); color: var(--text-primary); 
+                                          border-radius: 4px;">
+                        </div>
+                        <div id="vocabularyList">
+                            <div class="loading">加载词汇中...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 场景模拟 -->
+                <section class="section" id="scenarios">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">外包项目沟通场景</h2>
+                        </div>
+                        <div id="scenariosList">
+                            <div class="loading">加载场景中...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 编程挑战 -->
+                <section class="section" id="coding">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">编程解谜挑战</h2>
+                            <button class="btn" onclick="loadNextQuiz()">下一题</button>
+                        </div>
+                        <div id="quizContainer">
+                            <div class="loading">加载题目中...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 成就系统 -->
+                <section class="section" id="achievements">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">成就徽章</h2>
+                            <span style="color: var(--text-secondary);" id="achievementProgress">已解锁: 0/0</span>
+                        </div>
+                        <div class="achievement-grid" id="achievementGrid">
+                            <div class="loading">加载成就中...</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">排行榜</h2>
+                        </div>
+                        <div class="leaderboard" id="leaderboard">
+                            <div class="loading">加载排行榜中...</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Dialog Modal -->
+    <div class="chat-overlay" id="chatOverlay"></div>
+    <div class="chat-dialog" id="chatDialog">
+        <div class="chat-header">
+            <div>
+                <h3 id="scenarioTitle">场景对话练习</h3>
+                <p style="color: var(--text-secondary); font-size: 14px; margin-top: 5px;" id="scenarioDescription"></p>
+            </div>
+            <button class="btn" onclick="closeScenarioDialog()" style="background: var(--error-color);">结束练习</button>
+        </div>
+        <div class="chat-body">
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-sidebar">
+                <div class="response-templates">
+                    <h3>快速回复模板</h3>
+                    <div id="responseTemplates"></div>
+                </div>
+                <div class="scenario-hints">
+                    <h3>💡 提示</h3>
+                    <div id="scenarioHints"></div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <h3 style="font-size: 14px; color: var(--text-secondary); margin-bottom: 10px;">练习进度</h3>
+                    <div class="scenario-progress-bar">
+                        <div class="scenario-progress-fill" id="progressFill" style="width: 0%;"></div>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-top: 5px;">
+                        <span id="messageCount">0</span> 条对话
+                    </p>
+                </div>
+                <div class="auto-speak-toggle">
+                    <input type="checkbox" id="autoSpeak">
+                    <label for="autoSpeak" style="font-size: 13px; color: var(--text-secondary);">
+                        🔊 自动朗读AI回复
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="chat-input-container">
+            <textarea class="chat-input" id="chatInput" placeholder="输入你的回复... (按Enter发送)"></textarea>
+            <div class="chat-actions">
+                <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceRecording()">
+                    🎤
+                </button>
+                <button class="btn" onclick="sendMessage()">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API配置
+        const API_BASE = 'http://localhost:8081/api';
+        let authToken = localStorage.getItem('token');
+        let currentUser = null;
+        let currentScenarioId = null;
+        let currentQuizId = null;
+
+        // 检查登录状态（已移除登录体系，直接进入应用）
+        function checkAuth() {
+            // 初始化应用（绑定事件等）
+            initializeApp();
+            
+            // 设置默认用户
+            currentUser = {
+                userId: 1,
+                username: 'Developer',
+                email: 'developer@devenglish.com',
+                nickname: '开发者',
+                level: 'INTERMEDIATE'
+            };
+            
+            // 设置默认token
+            authToken = 'default-token-' + Date.now();
+            
+            // 直接显示应用
+            showApp();
+            
+            // 加载数据
+            setTimeout(() => {
+                loadUserInfo();
+                loadLearningProgress();
+                loadVocabulary();
+                loadScenarios();
+                loadNextQuiz();
+                loadAchievements();
+                loadLeaderboard();
+            }, 100);
+        }
+
+        // 显示登录界面
+        function showAuth() {
+            document.getElementById('authContainer').style.display = 'flex';
+            document.getElementById('appContainer').style.display = 'none';
+        }
+
+        // 显示应用界面
+        function showApp() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'flex';
+        }
+
+        // 跳过登录，以访客模式使用
+        function skipAuth() {
+            // 设置访客用户
+            currentUser = {
+                userId: 0,
+                username: '访客用户',
+                email: 'guest@devenglish.com',
+                isGuest: true
+            };
+            
+            // 直接显示应用
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'flex';
+            
+            // 加载各个模块（访客模式）
+            setTimeout(() => {
+                loadLearningProgress();
+                loadVocabulary();
+                loadScenarios();
+                loadNextQuiz();
+                loadAchievements();
+                loadLeaderboard();
+            }, 100);
+        }
+
+        // 切换到注册
+        function switchToRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        }
+
+        // 切换到登录
+        function switchToLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+        }
+
+        // API请求封装
+        async function apiRequest(url, options = {}) {
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            
+            if (authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+
+            try {
+                const response = await fetch(API_BASE + url, {
+                    ...options,
+                    headers
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    return data;
+                } else {
+                    throw new Error(data.message || '请求失败');
+                }
+            } catch (error) {
+                console.error('API请求错误:', error);
+                throw error;
+            }
+        }
+
+        // 标记是否已初始化
+        let isAppInitialized = false;
+        
+        // 初始化函数
+        function initializeApp() {
+            if (isAppInitialized) {
+                return;
+            }
+            isAppInitialized = true;
+            
+            console.log('初始化应用...');
+            
+            // 绑定登录表单事件
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                console.log('绑定登录表单事件');
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const username = document.getElementById('loginUsername').value;
+                    const password = document.getElementById('loginPassword').value;
+                    
+                    console.log('尝试登录:', username);
+                    
+                    try {
+                        const response = await apiRequest('/auth/login', {
+                            method: 'POST',
+                            body: JSON.stringify({ username, password })
+                        });
+                        
+                        console.log('登录响应:', response);
+                
+                        if (response.code === 200 && response.data) {
+                            // 登录成功
+                            if (response.data.token) {
+                                authToken = response.data.token;
+                                localStorage.setItem('token', authToken);
+                            }
+                            
+                            currentUser = response.data.user || response.data || {
+                                userId: 1,
+                                username: username,
+                                email: username + '@devenglish.com'
+                            };
+                            
+                            // 显示应用界面
+                            showApp();
+                    
+                            // 延迟加载数据，确保界面已渲染
+                            setTimeout(() => {
+                                loadUserInfo();
+                                loadLearningProgress();
+                                loadVocabulary();
+                                loadScenarios();
+                                loadNextQuiz();
+                                loadAchievements();
+                                loadLeaderboard();
+                            }, 100);
+                            
+                            // 显示欢迎信息
+                            console.log('登录成功！欢迎', currentUser.username);
+                        } else {
+                            // 如果API返回错误，显示消息
+                            alert('登录失败: ' + (response.message || '用户名或密码错误'));
+                        }
+                    } catch (error) {
+                        console.error('登录错误:', error);
+                        // 对于开发测试，允许使用任何用户名密码登录
+                        if (username && password) {
+                            console.log('使用测试模式登录');
+                            currentUser = {
+                                userId: 1,
+                                username: username,
+                                email: username + '@devenglish.com',
+                                isTestMode: true
+                            };
+                            
+                            // 生成测试token
+                            authToken = 'test-token-' + Date.now();
+                            localStorage.setItem('token', authToken);
+                            
+                            // 显示应用
+                            showApp();
+                    
+                            // 加载数据
+                            setTimeout(() => {
+                                loadLearningProgress();
+                                loadVocabulary();
+                                loadScenarios();
+                                loadNextQuiz();
+                                loadAchievements();
+                                loadLeaderboard();
+                            }, 100);
+                        } else {
+                            alert('请输入用户名和密码');
+                        }
+                    }
+                });
+            } else {
+                console.error('登录表单未找到');
+            }
+            
+            // 绑定注册表单事件
+            const registerForm = document.getElementById('registerForm');
+            if (registerForm) {
+                console.log('绑定注册表单事件');
+                registerForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const registerData = {
+                        username: document.getElementById('registerUsername').value,
+                        email: document.getElementById('registerEmail').value,
+                        password: document.getElementById('registerPassword').value,
+                        nickname: document.getElementById('registerNickname').value || document.getElementById('registerUsername').value,
+                        englishLevel: document.getElementById('registerLevel').value
+                    };
+                    
+                    try {
+                        const response = await apiRequest('/auth/register', {
+                            method: 'POST',
+                            body: JSON.stringify(registerData)
+                        });
+                        
+                        if (response.data.token) {
+                            authToken = response.data.token;
+                            localStorage.setItem('token', authToken);
+                            currentUser = response.data;
+                            showApp();
+                            loadUserInfo();
+                            loadDashboard();
+                        }
+                    } catch (error) {
+                        alert('注册失败: ' + error.message);
+                    }
+                });
+            } else {
+                console.error('注册表单未找到');
+            }
+            
+            // 绑定侧边栏点击事件
+            bindSidebarEvents();
+        }
+        
+        // 侧边栏事件绑定函数
+        function bindSidebarEvents() {
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            const sections = document.querySelectorAll('.section');
+            
+            console.log('绑定侧边栏事件, 找到', sidebarItems.length, '个菜单项');
+            
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const targetSection = item.dataset.section;
+                    console.log('点击菜单:', targetSection);
+                    
+                    // 更新激活状态
+                    sidebarItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    // 切换显示的内容
+                    sections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === targetSection) {
+                            section.classList.add('active');
+                            
+                            // 根据不同section加载数据
+                            switch(targetSection) {
+                                case 'dashboard':
+                                    loadDashboard();
+                                    break;
+                                case 'vocabulary':
+                                    loadVocabulary();
+                                    break;
+                                case 'scenarios':
+                                    loadScenarios();
+                                    break;
+                                case 'coding':
+                                    loadNextQuiz();
+                                    break;
+                                case 'achievements':
+                                    loadAchievements();
+                                    loadLeaderboard();
+                                    break;
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        // 退出登录（已禁用，改为刷新页面）
+        function logout() {
+            // 登录体系已移除，刷新页面即可
+            window.location.reload();
+        }
+
+        // 加载用户信息（使用默认用户数据）
+        function loadUserInfo() {
+            // 使用默认用户信息，无需API调用
+            const userInfo = currentUser || {
+                userId: 1,
+                username: 'Developer',
+                nickname: '开发者',
+                email: 'developer@devenglish.com',
+                level: 5,
+                experience: 2450,
+                streakDays: 7
+            };
+            
+            // 更新界面显示
+            const usernameElem = document.getElementById('username');
+            const userAvatarElem = document.getElementById('userAvatar');
+            const levelElem = document.getElementById('level');
+            const xpElem = document.getElementById('xp');
+            const streakElem = document.getElementById('streak');
+            
+            if (usernameElem) usernameElem.textContent = userInfo.nickname || userInfo.username;
+            if (userAvatarElem) userAvatarElem.textContent = (userInfo.nickname || userInfo.username).charAt(0).toUpperCase();
+            if (levelElem) levelElem.textContent = userInfo.level || 1;
+            if (xpElem) xpElem.textContent = userInfo.experience || 0;
+            if (streakElem) streakElem.textContent = userInfo.streakDays || 0;
+            
+            currentUser = userInfo;
+            console.log('用户信息已加载:', userInfo);
+        }
+
+        // 加载学习进度
+        function loadLearningProgress() {
+            console.log('加载学习进度...');
+            // 显示默认进度
+            const progressElements = document.querySelectorAll('.progress-fill');
+            progressElements.forEach(el => {
+                el.style.width = '35%';
+            });
+            
+            // 更新统计数据
+            const statsElements = document.querySelectorAll('.stat-value');
+            if (statsElements.length > 0) {
+                if (statsElements[0]) statsElements[0].textContent = '450';
+                if (statsElements[1]) statsElements[1].textContent = '12';
+                if (statsElements[2]) statsElements[2].textContent = '85%';
+            }
+        }
+        
+        // 加载仪表板
+        function loadDashboard() {
+            console.log('加载仪表板...');
+            
+            // 使用默认进度数据
+            const progress = 65;
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            if (progressBar) {
+                progressBar.style.width = progress + '%';
+            }
+            if (progressText) {
+                progressText.textContent = `今日目标完成度: ${progress}%`;
+            }
+            
+            // 加载其他仪表板数据
+            loadDailyTasks();
+            loadLearningProgress();
+        }
+
+        // 加载每日任务
+        function loadDailyTasks() {
+            // 使用默认任务数据
+            const defaultTasks = [
+                { id: 1, title: '完成5个专业词汇学习', xpReward: 50, completed: true },
+                { id: 2, title: '参与一个场景对话', xpReward: 100, completed: true },
+                { id: 3, title: '完成今日编程挑战', xpReward: 150, completed: false },
+                { id: 4, title: '复习昨日学习内容', xpReward: 30, completed: false }
+            ];
+            
+            const tasksContainer = document.getElementById('dailyTasks');
+            if (!tasksContainer) return;
+            
+            tasksContainer.innerHTML = defaultTasks.map(task => `
+                <div class="task-item ${task.completed ? 'completed' : ''}" onclick="toggleTask(${task.id})">
+                    <div class="task-checkbox"></div>
+                    <div class="task-info">
+                        <div class="task-title">${task.title}</div>
+                        <div class="task-reward">+${task.xpReward} XP</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 切换任务完成状态
+        async function toggleTask(taskId) {
+            if (!currentUser) return;
+            
+            try {
+                await apiRequest(`/progress/daily-tasks/${taskId}/complete?userId=${currentUser.userId}`, {
+                    method: 'POST'
+                });
+                loadDailyTasks();
+                loadUserInfo();
+            } catch (error) {
+                console.error('更新任务失败:', error);
+            }
+        }
+
+        // 加载词汇列表
+        async function loadVocabulary(keyword = '') {
+            const vocabContainer = document.getElementById('vocabularyList');
+            
+            // 默认词汇数据
+            const defaultVocabulary = [
+                { id: 1, word: 'Sprint', pronunciation: '/sprɪnt/', meaning: '冲刺，短跑', example: 'We are in the last sprint of the project.', tags: ['Agile', 'Scrum'] },
+                { id: 2, word: 'Repository', pronunciation: '/rɪˈpɑzɪtɔri/', meaning: '仓库，存储库', example: 'Push your code to the Git repository.', tags: ['Git', 'Version Control'] },
+                { id: 3, word: 'Debug', pronunciation: '/diˈbʌg/', meaning: '调试', example: 'I need to debug this function.', tags: ['Programming', 'Testing'] },
+                { id: 4, word: 'Deployment', pronunciation: '/dɪˈplɔɪmənt/', meaning: '部署', example: 'The deployment will happen tonight.', tags: ['DevOps', 'Production'] },
+                { id: 5, word: 'Refactor', pronunciation: '/riˈfæktər/', meaning: '重构', example: 'We should refactor this legacy code.', tags: ['Code Quality', 'Best Practice'] }
+            ];
+            
+            try {
+                const url = keyword 
+                    ? `/vocabulary/search?query=${encodeURIComponent(keyword)}`
+                    : '/vocabulary/list?page=1&size=20';
+                    
+                const response = await apiRequest(url);
+                const vocabulary = response.data || defaultVocabulary;
+                
+                if (vocabulary.length === 0) {
+                    vocabContainer.innerHTML = '<div class="empty-state">暂无词汇数据</div>';
+                    return;
+                }
+                
+                displayVocabularyList(vocabulary);
+            } catch (error) {
+                console.log('使用默认词汇数据');
+                displayVocabularyList(defaultVocabulary);
+            }
+        }
+        
+        function displayVocabularyList(vocabulary) {
+            const vocabContainer = document.getElementById('vocabularyList');
+            if (!vocabContainer) return;
+            
+            vocabContainer.innerHTML = vocabulary.map(vocab => `
+                <div class="term-card" onclick="toggleTerm(this)">
+                    <div class="term-title">${vocab.word || vocab.term}</div>
+                    <span class="term-category">${vocab.tags ? vocab.tags[0] : (vocab.category || 'General')}</span>
+                    <div class="term-definition">
+                        ${vocab.meaning || vocab.definition}
+                        ${vocab.pronunciation ? `<br>发音: ${vocab.pronunciation}` : ''}
+                        ${vocab.example || vocab.exampleSentence ? `<br><br>例句: ${vocab.example || vocab.exampleSentence}` : ''}
+                        ${vocab.translation ? `<br>中文: ${vocab.translation}` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 词汇搜索
+        document.getElementById('vocabularySearch')?.addEventListener('input', (e) => {
+            const keyword = e.target.value;
+            if (keyword.length >= 2 || keyword.length === 0) {
+                loadVocabulary(keyword);
+            }
+        });
+
+        // 加载场景列表
+        async function loadScenarios() {
+            const scenariosContainer = document.getElementById('scenariosList');
+            
+            // 默认场景数据
+            const defaultScenarios = [
+                { id: 1, title: 'Sprint Planning Meeting', description: 'Practice discussing story points and sprint goals', difficulty: 'INTERMEDIATE', type: 'AGILE' },
+                { id: 2, title: 'Daily Standup', description: 'Report progress and blockers in daily meetings', difficulty: 'BEGINNER', type: 'AGILE' },
+                { id: 3, title: 'Code Review Discussion', description: 'Review and discuss code changes with team members', difficulty: 'INTERMEDIATE', type: 'TECHNICAL' },
+                { id: 4, title: 'Requirements Clarification', description: 'Clarify project requirements with clients', difficulty: 'ADVANCED', type: 'CLIENT_COMMUNICATION' },
+                { id: 5, title: 'Bug Report', description: 'Report and discuss bugs with QA team', difficulty: 'BEGINNER', type: 'TECHNICAL' },
+                { id: 6, title: 'Architecture Discussion', description: 'Discuss system architecture and design patterns', difficulty: 'ADVANCED', type: 'TECHNICAL' },
+                { id: 7, title: 'Deployment Planning', description: 'Plan production deployment with DevOps team', difficulty: 'INTERMEDIATE', type: 'DEVOPS' },
+                { id: 8, title: 'Performance Review', description: 'Discuss project performance and improvements', difficulty: 'INTERMEDIATE', type: 'PROJECT_MANAGEMENT' }
+            ];
+            
+            try {
+                const response = await apiRequest('/scenario/list');
+                const scenarios = response.data || defaultScenarios;
+                
+                // 缓存场景列表
+                scenariosList = scenarios;
+                
+                if (scenarios.length === 0) {
+                    scenariosContainer.innerHTML = '<div class="empty-state">暂无场景数据</div>';
+                    return;
+                }
+                
+                displayScenariosList(scenarios);
+            } catch (error) {
+                console.log('使用默认场景数据');
+                scenariosList = defaultScenarios;
+                displayScenariosList(defaultScenarios);
+            }
+        }
+        
+        function displayScenariosList(scenarios) {
+            const scenariosContainer = document.getElementById('scenariosList');
+            if (!scenariosContainer) return;
+            
+            scenariosContainer.innerHTML = scenarios.map(scenario => {
+                const difficultyClass = scenario.difficulty?.toLowerCase() || 'beginner';
+                return `
+                    <div class="scenario-container">
+                        <div class="scenario-header">
+                            <div class="scenario-avatar">${scenario.avatar || '💼'}</div>
+                            <div class="scenario-info">
+                                <div class="scenario-name">${scenario.title || scenario.name}</div>
+                                <div class="scenario-role">${scenario.type || scenario.role || 'Professional'}</div>
+                            </div>
+                        </div>
+                        <p>${scenario.description}</p>
+                        <div class="scenario-meta">
+                            <span class="difficulty-badge difficulty-${difficultyClass}">
+                                ${scenario.difficulty || 'BEGINNER'}
+                            </span>
+                            <span class="scenario-meta-item">
+                                📁 ${scenario.category || scenario.type || 'General'}
+                            </span>
+                            <span class="scenario-meta-item">
+                                ⏱️ ${scenario.estimatedTime || 15} 分钟
+                            </span>
+                        </div>
+                        <button class="btn" onclick="startScenario(${scenario.id})">
+                            开始练习
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 当前场景对话相关变量
+        let currentScenarioId = null;
+        let chatHistory = [];
+        let messageCount = 0;
+        let isRecording = false;
+        let scenariosList = [];
+
+        // 开始场景练习
+        async function startScenario(scenarioId) {
+            currentScenarioId = scenarioId;
+            chatHistory = [];
+            messageCount = 0;
+            
+            // 从缓存的场景列表中获取场景信息
+            const scenario = scenariosList.find(s => s.id === scenarioId) || {};
+            
+            // 更新对话框标题
+            document.getElementById('scenarioTitle').textContent = scenario.name || '场景练习';
+            document.getElementById('scenarioDescription').textContent = scenario.description || '';
+            
+            // 显示对话框
+            document.getElementById('chatOverlay').classList.add('active');
+            document.getElementById('chatDialog').classList.add('active');
+            
+            // 清空聊天记录
+            document.getElementById('chatMessages').innerHTML = '';
+            document.getElementById('messageCount').textContent = '0';
+            document.getElementById('progressFill').style.width = '0%';
+            
+            // 加载场景详情和初始化对话
+            try {
+                // 获取场景详情
+                const detailResponse = await apiRequest(`/scenario/${scenarioId}`);
+                const scenarioDetail = detailResponse.data;
+                
+                // 获取对话历史（包含初始消息）
+                const historyResponse = await apiRequest(`/scenario/${scenarioId}/history?userId=${currentUser?.userId || 0}`);
+                const history = historyResponse.data || [];
+                
+                // 显示初始消息
+                for (const msg of history) {
+                    addMessageToChat(msg.role, msg.message);
+                }
+                
+                // 加载响应模板
+                const templatesResponse = await apiRequest(`/scenario/${scenarioId}/templates`);
+                const templates = templatesResponse.data || [];
+                displayResponseTemplates(templates);
+                
+                // 显示提示
+                displayScenarioHints(scenarioId);
+                
+            } catch (error) {
+                console.error('加载场景详情失败:', error);
+                addMessageToChat('system', '场景加载失败，请重试');
+            }
+        }
+
+        // 关闭场景对话框
+        function closeScenarioDialog() {
+            if (messageCount > 0 && confirm('确定要结束本次练习吗？系统将为您生成练习报告。')) {
+                completeScenario();
+            } else {
+                document.getElementById('chatOverlay').classList.remove('active');
+                document.getElementById('chatDialog').classList.remove('active');
+                currentScenarioId = null;
+            }
+        }
+
+        // 完成场景练习
+        async function completeScenario() {
+            try {
+                const response = await apiRequest(`/scenario/${currentScenarioId}/complete`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        userId: currentUser?.userId || 0,
+                        messageCount: messageCount
+                    })
+                });
+                
+                const result = response.data;
+                
+                // 显示完成反馈
+                alert(`
+练习完成！
+得分：${result.score || 0}/100
+获得经验：${result.xpEarned || 0} XP
+反馈：${result.feedback || '继续努力！'}
+                `);
+                
+                // 关闭对话框
+                document.getElementById('chatOverlay').classList.remove('active');
+                document.getElementById('chatDialog').classList.remove('active');
+                currentScenarioId = null;
+                
+                // 刷新成就和排行榜
+                if (currentUser) {
+                    loadAchievements();
+                    loadLeaderboard();
+                }
+            } catch (error) {
+                console.error('完成场景失败:', error);
+            }
+        }
+
+        // 添加消息到聊天界面
+        function addMessageToChat(role, message) {
+            const chatMessages = document.getElementById('chatMessages');
+            const isUser = role === 'user';
+            const avatar = isUser ? '👤' : (role === 'system' ? '💻' : '🤖');
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
+            
+            const time = new Date().toLocaleTimeString('zh-CN', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            messageDiv.innerHTML = `
+                ${!isUser ? `<div class="message-avatar">${avatar}</div>` : ''}
+                <div class="message-bubble" id="msg-${Date.now()}">
+                    <div>${message}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+                ${isUser ? `<div class="message-avatar">${avatar}</div>` : ''}
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // 添加语音播放按钮
+            const messageBubble = messageDiv.querySelector('.message-bubble');
+            addSpeakButton(messageBubble, message);
+            
+            // 如果是AI回复，自动朗读（可选）
+            if (role === 'ai' && document.getElementById('autoSpeak')?.checked) {
+                setTimeout(() => speakMessage(message, 'ai'), 500);
+            }
+            
+            // 更新进度
+            if (role !== 'system') {
+                messageCount++;
+                document.getElementById('messageCount').textContent = messageCount;
+                const progress = Math.min(100, (messageCount / 20) * 100);
+                document.getElementById('progressFill').style.width = `${progress}%`;
+            }
+        }
+
+        // 发送消息
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message || !currentScenarioId) return;
+            
+            // 显示用户消息
+            addMessageToChat('user', message);
+            input.value = '';
+            
+            try {
+                // 发送到后端
+                const response = await apiRequest('/scenario/chat', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        scenarioId: currentScenarioId,
+                        userId: currentUser?.userId || 0,
+                        message: message,
+                        role: 'user'
+                    })
+                });
+                
+                const aiResponse = response.data;
+                
+                // 显示AI回复
+                setTimeout(() => {
+                    addMessageToChat('ai', aiResponse.message);
+                }, 500 + Math.random() * 1000);
+                
+            } catch (error) {
+                console.error('发送消息失败:', error);
+                addMessageToChat('system', '发送失败，请重试');
+            }
+        }
+
+        // 显示响应模板
+        function displayResponseTemplates(templates) {
+            const container = document.getElementById('responseTemplates');
+            
+            if (!templates || templates.length === 0) {
+                // 使用默认模板
+                templates = [
+                    "Could you clarify that?",
+                    "I understand. Let me explain...",
+                    "That's a good point.",
+                    "I agree with that approach.",
+                    "Let me check and get back to you."
+                ];
+            }
+            
+            container.innerHTML = templates.map(template => `
+                <div class="template-item" onclick="useTemplate('${template.replace(/'/g, "\\'").replace(/"/g, "&quot;")}')">${template}</div>
+            `).join('');
+        }
+
+        // 使用模板
+        function useTemplate(template) {
+            const input = document.getElementById('chatInput');
+            input.value = template;
+            input.focus();
+        }
+
+        // 显示场景提示
+        function displayScenarioHints(scenarioId) {
+            const container = document.getElementById('scenarioHints');
+            const hints = getScenarioHints(scenarioId);
+            
+            container.innerHTML = hints.map(hint => `
+                <div class="hint-item">${hint}</div>
+            `).join('');
+        }
+
+        // 获取场景提示
+        function getScenarioHints(scenarioId) {
+            const hintsMap = {
+                1: [
+                    "使用专业的敏捷术语",
+                    "讨论故事点估算时要考虑复杂度",
+                    "主动识别依赖和阻碍"
+                ],
+                2: [
+                    "简洁明了地汇报进展",
+                    "明确说明今日计划",
+                    "主动提出需要的帮助"
+                ],
+                3: [
+                    "解释你的设计决策",
+                    "接受反馈并给出改进方案",
+                    "讨论代码质量和测试覆盖"
+                ],
+                4: [
+                    "确认需求理解准确",
+                    "主动询问验收标准",
+                    "讨论时间线和里程碑"
+                ]
+            };
+            
+            return hintsMap[scenarioId] || [
+                "保持专业和礼貌",
+                "使用清晰的技术术语",
+                "主动提问和确认理解"
+            ];
+        }
+
+        // 语音功能增强
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recognition = null;
+        let synthesis = window.speechSynthesis;
+        let isSpeaking = false;
+
+        // 初始化语音识别
+        function initSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.lang = 'en-US';
+                recognition.continuous = false;
+                recognition.interimResults = true;
+                recognition.maxAlternatives = 1;
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    document.getElementById('chatInput').value = transcript;
+                    
+                    if (event.results[0].isFinal) {
+                        // 自动发送识别结果
+                        if (transcript.trim()) {
+                            sendMessage();
+                        }
+                    }
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('语音识别错误:', event.error);
+                    if (event.error === 'no-speech') {
+                        showNotification('未检测到语音，请重试', 'warning');
+                    }
+                };
+
+                recognition.onend = () => {
+                    const voiceBtn = document.getElementById('voiceBtn');
+                    voiceBtn.classList.remove('recording');
+                    voiceBtn.textContent = '🎤';
+                    isRecording = false;
+                };
+            }
+        }
+
+        // 切换语音录制
+        function toggleVoiceRecording() {
+            const voiceBtn = document.getElementById('voiceBtn');
+            
+            if (!isRecording) {
+                if (recognition) {
+                    // 使用Web Speech API
+                    recognition.start();
+                    voiceBtn.classList.add('recording');
+                    voiceBtn.textContent = '⏹️';
+                    isRecording = true;
+                    showNotification('正在听取...请说话', 'info');
+                } else {
+                    // 降级到MediaRecorder
+                    startMediaRecording();
+                }
+            } else {
+                if (recognition) {
+                    recognition.stop();
+                } else {
+                    stopMediaRecording();
+                }
+                voiceBtn.classList.remove('recording');
+                voiceBtn.textContent = '🎤';
+                isRecording = false;
+            }
+        }
+
+        // 使用MediaRecorder作为备选方案
+        async function startMediaRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                const voiceBtn = document.getElementById('voiceBtn');
+                voiceBtn.classList.add('recording');
+                voiceBtn.textContent = '⏹️';
+                isRecording = true;
+                
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    // 这里可以发送到后端语音识别API
+                    console.log('录音完成', audioBlob);
+                    showNotification('录音完成，处理中...', 'info');
+                    
+                    // 模拟语音识别结果
+                    setTimeout(() => {
+                        document.getElementById('chatInput').value = "I think we can complete this task in 3 story points.";
+                        showNotification('语音识别完成', 'success');
+                    }, 1000);
+                };
+                
+                mediaRecorder.start();
+                showNotification('正在录音...', 'info');
+            } catch (error) {
+                console.error('无法访问麦克风:', error);
+                showNotification('请允许访问麦克风', 'error');
+            }
+        }
+
+        function stopMediaRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        // 文字转语音 (TTS)
+        function speakMessage(text, role = 'ai') {
+            if (!synthesis) {
+                console.warn('浏览器不支持语音合成');
+                return;
+            }
+
+            // 停止当前播放
+            synthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9; // 语速
+            utterance.pitch = role === 'ai' ? 1.0 : 1.1; // 音调
+            utterance.volume = 0.9; // 音量
+
+            // 选择语音
+            const voices = synthesis.getVoices();
+            const englishVoice = voices.find(voice => 
+                voice.lang.includes('en') && 
+                (role === 'ai' ? voice.name.includes('Female') : voice.name.includes('Male'))
+            );
+            
+            if (englishVoice) {
+                utterance.voice = englishVoice;
+            }
+
+            utterance.onstart = () => {
+                isSpeaking = true;
+                highlightSpeakingMessage(text);
+            };
+
+            utterance.onend = () => {
+                isSpeaking = false;
+                removeSpeakingHighlight();
+            };
+
+            synthesis.speak(utterance);
+        }
+
+        // 高亮正在朗读的消息
+        function highlightSpeakingMessage(text) {
+            const messages = document.querySelectorAll('.message-bubble');
+            messages.forEach(msg => {
+                if (msg.textContent.includes(text.substring(0, 50))) {
+                    msg.classList.add('speaking');
+                }
+            });
+        }
+
+        function removeSpeakingHighlight() {
+            document.querySelectorAll('.message-bubble.speaking').forEach(msg => {
+                msg.classList.remove('speaking');
+            });
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                background: ${type === 'error' ? '#f44336' : type === 'success' ? '#4CAF50' : type === 'warning' ? '#ff9800' : '#2196F3'};
+                color: white;
+                border-radius: 8px;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                font-size: 14px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // 添加语音按钮到每条消息
+        function addSpeakButton(messageElement, text) {
+            const speakBtn = document.createElement('button');
+            speakBtn.className = 'speak-btn';
+            speakBtn.innerHTML = '🔊';
+            speakBtn.style.cssText = `
+                position: absolute;
+                top: 5px;
+                right: 5px;
+                background: transparent;
+                border: none;
+                cursor: pointer;
+                font-size: 16px;
+                opacity: 0.6;
+                transition: opacity 0.2s;
+            `;
+            speakBtn.onmouseover = () => speakBtn.style.opacity = '1';
+            speakBtn.onmouseout = () => speakBtn.style.opacity = '0.6';
+            speakBtn.onclick = () => speakMessage(text);
+            
+            messageElement.style.position = 'relative';
+            messageElement.appendChild(speakBtn);
+        }
+
+        // 初始化语音功能
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化应用
+            initializeApp();
+            
+            // 初始化语音识别
+            initSpeechRecognition();
+            
+            // 加载可用语音
+            if (synthesis) {
+                synthesis.getVoices();
+                // Chrome需要用户交互后才能获取语音列表
+                synthesis.addEventListener('voiceschanged', () => {
+                    const voices = synthesis.getVoices();
+                    console.log(`已加载 ${voices.length} 个语音`);
+                });
+            }
+        });
+
+        // Enter键发送消息
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatInput = document.getElementById('chatInput');
+            if (chatInput) {
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+            }
+        });
+
+        // 加载下一道测验题
+        function loadNextQuiz() {
+            // 使用默认测验数据
+            const defaultQuiz = {
+                id: 1,
+                question: 'What does "API" stand for?',
+                options: [
+                    'Application Programming Interface',
+                    'Advanced Programming Integration',
+                    'Automated Process Implementation',
+                    'Application Process Interface'
+                ],
+                correctAnswer: 0,
+                explanation: 'API stands for Application Programming Interface, which allows different software applications to communicate with each other.'
+            };
+            
+            const quizContainer = document.getElementById('quizContainer');
+            if (!quizContainer) return;
+            
+            currentQuizId = defaultQuiz.id;
+            
+            quizContainer.innerHTML = `
+                <div class="quiz-container">
+                    <div class="quiz-question">${defaultQuiz.question}</div>
+                    ${defaultQuiz.options.map((option, index) => `
+                        <div class="quiz-option" onclick="selectQuizOption(this, ${index}, ${defaultQuiz.correctAnswer})">
+                            ${option}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // 选择答案
+        async function selectQuizOption(element, answer, correctAnswer) {
+            const isCorrect = answer === correctAnswer;
+            element.classList.add(isCorrect ? 'correct' : 'incorrect');
+            
+            // 禁用所有选项
+            document.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+            
+            if (currentUser && currentQuizId) {
+                try {
+                    await apiRequest('/game/quiz/submit', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            userId: currentUser.userId,
+                            questionId: currentQuizId,
+                            answer: answer,
+                            isCorrect: isCorrect
+                        })
+                    });
+                    
+                    if (isCorrect) {
+                        loadUserInfo(); // 更新经验值
+                    }
+                } catch (error) {
+                    console.error('提交答案失败:', error);
+                }
+            }
+            
+            // 2秒后加载下一题
+            setTimeout(() => loadNextQuiz(), 2000);
+        }
+
+        // 加载成就
+        function loadAchievements() {
+            // 使用默认成就数据
+            const defaultAchievements = [
+                { id: 1, name: '初学者', description: '完成首次学习', icon: '🌱', unlocked: true },
+                { id: 2, name: '连续学习', description: '连续7天学习', icon: '🔥', unlocked: true },
+                { id: 3, name: '词汇大师', description: '掌握100个单词', icon: '📚', unlocked: false },
+                { id: 4, name: '对话高手', description: '完成10个场景', icon: '💬', unlocked: false },
+                { id: 5, name: '代码专家', description: '完戕20个编程挑战', icon: '💻', unlocked: false }
+            ];
+            
+            const achievementGrid = document.getElementById('achievementGrid');
+            const unlockedCount = defaultAchievements.filter(a => a.unlocked).length;
+            
+            const progressElem = document.getElementById('achievementProgress');
+            if (progressElem) {
+                progressElem.textContent = `已解锁: ${unlockedCount}/${defaultAchievements.length}`;
+            }
+            
+            if (achievementGrid) {
+                achievementGrid.innerHTML = defaultAchievements.map(achievement => `
+                    <div class="achievement-item ${achievement.unlocked ? 'unlocked' : 'locked'}">
+                        <div class="achievement-icon">${achievement.icon}</div>
+                        <div>${achievement.name}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 加载排行榜
+        function loadLeaderboard() {
+            // 使用默认排行榜数据
+            const defaultLeaderboard = [
+                { rank: 1, username: 'CodeMaster', score: 2850, avatar: 'C' },
+                { rank: 2, username: 'DevExpert', score: 2650, avatar: 'D' },
+                { rank: 3, username: 'TechGuru', score: 2450, avatar: 'T' },
+                { rank: 4, username: 'Developer', score: 2350, avatar: '开' },
+                { rank: 5, username: 'Programmer', score: 2200, avatar: 'P' }
+            ];
+            
+            const leaderboardContainer = document.getElementById('leaderboard');
+            if (!leaderboardContainer) return;
+            
+            leaderboardContainer.innerHTML = defaultLeaderboard.map((user, index) => {
+                let rankClass = '';
+                if (index === 0) rankClass = 'gold';
+                else if (index === 1) rankClass = 'silver';
+                else if (index === 2) rankClass = 'bronze';
+                
+                return `
+                    <div class="leaderboard-item">
+                        <div class="rank ${rankClass}">${user.rank || (index + 1)}</div>
+                        <div class="user-info">
+                            <div class="user-name">${user.username}</div>
+                            <div class="user-score">${user.score} XP</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 切换术语卡片
+        function toggleTerm(card) {
+            card.classList.toggle('expanded');
+        }
+
+        // 侧边栏切换已移到 bindSidebarEvents() 函数中，在 initializeApp() 中调用
+
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            // Ctrl + B: 切换侧边栏
+            if (e.ctrlKey && e.key === 'b') {
+                e.preventDefault();
+                sidebar.classList.toggle('expanded');
+            }
+        });
+
+        // 初始化应用
+        checkAuth();
+    </script>
+</body>
+</html>
