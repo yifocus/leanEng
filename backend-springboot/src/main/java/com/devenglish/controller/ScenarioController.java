@@ -4,8 +4,8 @@ import com.devenglish.common.Result;
 import com.devenglish.dto.ChatMessage;
 import com.devenglish.dto.ScenarioResponse;
 import com.devenglish.service.ScenarioService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,32 +15,32 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/scenario")
 @RequiredArgsConstructor
-@Api(tags = "场景对话管理")
+@Tag(name = "场景对话管理")
 @CrossOrigin
 public class ScenarioController {
     
     private final ScenarioService scenarioService;
     
     @GetMapping("/list")
-    @ApiOperation("获取场景列表")
+    @Operation(summary = "获取场景列表")
     public Result<List<ScenarioResponse>> getScenarioList() {
         return Result.success(scenarioService.getScenarioList());
     }
     
     @GetMapping("/{id}")
-    @ApiOperation("获取场景详情")
+    @Operation(summary = "获取场景详情")
     public Result<ScenarioResponse> getScenarioDetail(@PathVariable Long id) {
         return Result.success(scenarioService.getScenarioDetail(id));
     }
     
     @PostMapping("/chat")
-    @ApiOperation("发送对话消息")
+    @Operation(summary = "发送对话消息")
     public Result<ChatMessage> sendMessage(@RequestBody ChatMessage message) {
         return Result.success(scenarioService.processMessage(message));
     }
     
     @GetMapping("/{scenarioId}/history")
-    @ApiOperation("获取对话历史")
+    @Operation(summary = "获取对话历史")
     public Result<List<ChatMessage>> getChatHistory(
             @PathVariable Long scenarioId,
             @RequestParam(required = false, defaultValue = "0") Long userId) {
@@ -48,7 +48,7 @@ public class ScenarioController {
     }
     
     @PostMapping("/{scenarioId}/complete")
-    @ApiOperation("完成场景练习")
+    @Operation(summary = "完成场景练习")
     public Result<Map<String, Object>> completeScenario(
             @PathVariable Long scenarioId,
             @RequestBody Map<String, Object> request) {
@@ -57,14 +57,14 @@ public class ScenarioController {
     }
     
     @GetMapping("/{scenarioId}/templates")
-    @ApiOperation("获取场景对话模板")
+    @Operation(summary = "获取场景对话模板")
     public Result<List<String>> getResponseTemplates(@PathVariable Long scenarioId) {
         String scenarioName = getScenarioNameById(scenarioId);
         return Result.success(scenarioService.getResponseTemplates(scenarioName));
     }
     
     @GetMapping("/categories")
-    @ApiOperation("获取场景分类")
+    @Operation(summary = "获取场景分类")
     public Result<List<String>> getCategories() {
         List<String> categories = Arrays.asList(
             "Agile/Scrum",
@@ -79,7 +79,7 @@ public class ScenarioController {
     }
     
     @GetMapping("/recommended")
-    @ApiOperation("获取推荐场景")
+    @Operation(summary = "获取推荐场景")
     public Result<List<ScenarioResponse>> getRecommendedScenarios(
             @RequestParam(required = false, defaultValue = "0") Long userId) {
         List<ScenarioResponse> allScenarios = scenarioService.getScenarioList();
@@ -90,7 +90,7 @@ public class ScenarioController {
     }
     
     @GetMapping("/statistics")
-    @ApiOperation("获取练习统计")
+    @Operation(summary = "获取练习统计")
     public Result<Map<String, Object>> getStatistics(
             @RequestParam(required = false, defaultValue = "0") Long userId) {
         List<Map<String, Object>> weeklyProgress = new ArrayList<>();

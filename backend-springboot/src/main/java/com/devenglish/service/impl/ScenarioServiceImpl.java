@@ -3,6 +3,8 @@ package com.devenglish.service.impl;
 import com.devenglish.dto.ChatMessage;
 import com.devenglish.dto.ScenarioDetailResponse;
 import com.devenglish.dto.ScenarioResponse;
+import com.devenglish.entity.Scenario;
+import com.devenglish.mapper.ScenarioMapper;
 import com.devenglish.service.ScenarioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,8 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class ScenarioServiceImpl implements ScenarioService {
+    
+    private final ScenarioMapper scenarioMapper;
     
     // 预设的外包场景对话数据
     private static final Map<String, List<String>> SCENARIO_RESPONSES = new HashMap<>();
@@ -73,9 +77,34 @@ public class ScenarioServiceImpl implements ScenarioService {
     
     @Override
     public List<ScenarioResponse> getScenarioList() {
+        try {
+            List<Scenario> scenarioEntities = scenarioMapper.getAllScenarios();
+            List<ScenarioResponse> scenarios = new ArrayList<>();
+            
+            for (Scenario scenario : scenarioEntities) {
+                scenarios.add(ScenarioResponse.builder()
+                        .id(scenario.getId())
+                        .name(scenario.getName())
+                        .description(scenario.getDescription())
+                        .avatar(scenario.getAvatar())
+                        .role(scenario.getRole())
+                        .difficulty(scenario.getDifficulty())
+                        .category(scenario.getCategory())
+                        .estimatedTime(scenario.getEstimatedTime())
+                        .build());
+            }
+            
+            return scenarios;
+        } catch (Exception e) {
+            log.error("Error getting scenario list", e);
+            // 发生异常时返回默认场景列表
+            return getDefaultScenarioList();
+        }
+    }
+    
+    private List<ScenarioResponse> getDefaultScenarioList() {
         List<ScenarioResponse> scenarios = new ArrayList<>();
         
-        // 外包项目相关场景
         scenarios.add(ScenarioResponse.builder()
                 .id(1L)
                 .name("Sprint Planning Meeting")

@@ -3,6 +3,8 @@ package com.devenglish.service.impl;
 import com.devenglish.dto.DailyTaskResponse;
 import com.devenglish.dto.ProgressResponse;
 import com.devenglish.dto.StatisticsResponse;
+import com.devenglish.entity.DailyTask;
+import com.devenglish.mapper.DailyTaskMapper;
 import com.devenglish.service.ProgressService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,8 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class ProgressServiceImpl implements ProgressService {
+    
+    private final DailyTaskMapper dailyTaskMapper;
     
     @Override
     public Map<String, Object> getDashboardData(Long userId) {
@@ -45,6 +49,30 @@ public class ProgressServiceImpl implements ProgressService {
     
     @Override
     public List<DailyTaskResponse> getDailyTasks(Long userId) {
+        try {
+            List<DailyTask> dailyTaskEntities = dailyTaskMapper.getDailyTasksByUserId(userId);
+            List<DailyTaskResponse> tasks = new ArrayList<>();
+            
+            for (DailyTask task : dailyTaskEntities) {
+                tasks.add(DailyTaskResponse.builder()
+                        .id(task.getId())
+                        .title(task.getTitle())
+                        .description(task.getDescription())
+                        .category(task.getCategory())
+                        .xpReward(task.getXpReward())
+                        .completed(task.getIsCompleted())
+                        .build());
+            }
+            
+            return tasks;
+        } catch (Exception e) {
+            log.error("Error getting daily tasks for user {}", userId, e);
+            // 发生异常时返回默认任务列表
+            return getDefaultDailyTasks();
+        }
+    }
+    
+    private List<DailyTaskResponse> getDefaultDailyTasks() {
         List<DailyTaskResponse> tasks = new ArrayList<>();
         tasks.add(DailyTaskResponse.builder()
                 .id(1L)
@@ -52,14 +80,6 @@ public class ProgressServiceImpl implements ProgressService {
                 .description("Read and understand React Hooks concepts")
                 .category("Learning")
                 .xpReward(50)
-                .completed(false)
-                .build());
-        tasks.add(DailyTaskResponse.builder()
-                .id(2L)
-                .title("Practice Scrum meeting scenario")
-                .description("Complete one Scrum meeting simulation")
-                .category("Speaking")
-                .xpReward(80)
                 .completed(false)
                 .build());
         return tasks;

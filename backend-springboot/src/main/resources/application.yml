@@ -12,7 +12,7 @@ spring:
   
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://117.72.222.158:3306/devenglish?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://117.72.222.158:3306/devenglish?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true&failOverReadOnly=false&connectionCollation=utf8mb4_unicode_ci
     username: yiyue-db-user
     password: Yiyue-ai.com666
     hikari:
@@ -21,6 +21,11 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
       connection-timeout: 30000
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql
+      continue-on-error: true
   
   redis:
     host: localhost
@@ -40,6 +45,12 @@ spring:
     time-zone: GMT+8
     serialization:
       write-dates-as-timestamps: false
+  
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml

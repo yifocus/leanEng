@@ -18,7 +18,7 @@ public class DevEnglishApplication {
         SpringApplication.run(DevEnglishApplication.class, args);
         System.out.println("========================================");
         System.out.println("   DevEnglish Pro Started Successfully!   ");
-        System.out.println("   Swagger: http://localhost:8081/swagger-ui/");
+        System.out.println("   Swagger: http://localhost:8081/swagger-ui/index.html");
         System.out.println("========================================");
     }
 }

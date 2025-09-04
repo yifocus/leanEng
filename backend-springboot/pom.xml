@@ -22,7 +22,7 @@
     <properties>
         <java.version>1.8</java.version>
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
-        <swagger.version>3.0.0</swagger.version>
+        <springdoc.version>1.7.0</springdoc.version>
         <jwt.version>0.11.5</jwt.version>
         <hutool.version>5.8.20</hutool.version>
     </properties>
@@ -80,11 +80,11 @@
             <scope>runtime</scope>
         </dependency>
         
-        <!-- Swagger -->
+        <!-- SpringDoc OpenAPI -->
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-boot-starter</artifactId>
-            <version>${swagger.version}</version>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>${springdoc.version}</version>
         </dependency>
         
         <!-- JWT -->

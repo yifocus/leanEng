@@ -4,8 +4,8 @@ import com.devenglish.common.Result;
 import com.devenglish.dto.QuizQuestion;
 import com.devenglish.dto.QuizSubmission;
 import com.devenglish.service.GameService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,14 +15,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/game")
 @RequiredArgsConstructor
-@Api(tags = "游戏化学习")
+@Tag(name = "游戏化学习")
 @CrossOrigin
 public class GameController {
     
     private final GameService gameService;
     
     @GetMapping("/quiz/next")
-    @ApiOperation("获取下一道测验题")
+    @Operation(summary = "获取下一道测验题")
     public Result<QuizQuestion> getNextQuizQuestion(
             @RequestParam Long userId,
             @RequestParam(required = false) String difficulty) {
@@ -30,13 +30,13 @@ public class GameController {
     }
     
     @PostMapping("/quiz/submit")
-    @ApiOperation("提交测验答案")
+    @Operation(summary = "提交测验答案")
     public Result<Map<String, Object>> submitQuizAnswer(@RequestBody QuizSubmission submission) {
         return Result.success(gameService.submitQuizAnswer(submission));
     }
     
     @GetMapping("/coding-challenge")
-    @ApiOperation("获取编程挑战")
+    @Operation(summary = "获取编程挑战")
     public Result<Map<String, Object>> getCodingChallenge(
             @RequestParam Long userId,
             @RequestParam(required = false) String level) {
@@ -44,7 +44,7 @@ public class GameController {
     }
     
     @PostMapping("/coding-challenge/submit")
-    @ApiOperation("提交编程挑战答案")
+    @Operation(summary = "提交编程挑战答案")
     public Result<Map<String, Object>> submitCodingChallenge(
             @RequestParam Long challengeId,
             @RequestParam Long userId,
@@ -53,13 +53,13 @@ public class GameController {
     }
     
     @GetMapping("/achievements")
-    @ApiOperation("获取成就列表")
+    @Operation(summary = "获取成就列表")
     public Result<List<Map<String, Object>>> getAchievements(@RequestParam Long userId) {
         return Result.success(gameService.getAchievements(userId));
     }
     
     @PostMapping("/achievements/{achievementId}/unlock")
-    @ApiOperation("解锁成就")
+    @Operation(summary = "解锁成就")
     public Result<Map<String, Object>> unlockAchievement(
             @PathVariable Long achievementId,
             @RequestParam Long userId) {
@@ -67,7 +67,7 @@ public class GameController {
     }
     
     @GetMapping("/leaderboard")
-    @ApiOperation("获取排行榜")
+    @Operation(summary = "获取排行榜")
     public Result<List<Map<String, Object>>> getLeaderboard(
             @RequestParam(defaultValue = "weekly") String period,
             @RequestParam(defaultValue = "10") Integer limit) {

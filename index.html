@@ -1253,7 +1253,7 @@
         const API_BASE = 'http://localhost:8081/api';
         let authToken = localStorage.getItem('token');
         let currentUser = null;
-        let currentScenarioId = null;
+        // currentScenarioId already declared above
         let currentQuizId = null;
 
         // 检查登录状态（已移除登录体系，直接进入应用）
@@ -1354,7 +1354,18 @@
                     headers
                 });
 
-                const data = await response.json();
+                // 检查响应是否有内容
+                const text = await response.text();
+                let data = {};
+                
+                if (text) {
+                    try {
+                        data = JSON.parse(text);
+                    } catch (parseError) {
+                        console.error('JSON解析错误:', parseError, 'Response text:', text);
+                        data = { message: 'Invalid JSON response' };
+                    }
+                }
                 
                 if (response.ok) {
                     return data;
@@ -1802,7 +1813,7 @@
         }
 
         // 当前场景对话相关变量
-        let currentScenarioId = null;
+        // currentScenarioId already declared above
         let chatHistory = [];
         let messageCount = 0;
         let isRecording = false;
@@ -2312,8 +2323,56 @@
         });
 
         // 加载下一道测验题
-        function loadNextQuiz() {
-            // 使用默认测验数据
+        async function loadNextQuiz() {
+            if (!currentUser) {
+                console.error('用户未登录');
+                return;
+            }
+            
+            try {
+                // 调用后端API获取下一题
+                const response = await apiRequest(`/game/quiz/next?userId=${currentUser.userId}&difficulty=medium`);
+                
+                if (response.code === 200 && response.data) {
+                    const quiz = response.data;
+                    const quizContainer = document.getElementById('quizContainer');
+                    if (!quizContainer) return;
+                    
+                    currentQuizId = quiz.id;
+                    
+                    // 解析options字符串为数组
+                    let options = [];
+                    try {
+                        options = JSON.parse(quiz.options);
+                    } catch (e) {
+                        console.error('解析选项失败:', e);
+                        options = quiz.options || [];
+                    }
+                    
+                    quizContainer.innerHTML = `
+                        <div class="quiz-container">
+                            <div class="quiz-question">${quiz.question}</div>
+                            ${options.map((option, index) => `
+                                <div class="quiz-option" onclick="selectQuizOption(this, ${index}, ${quiz.correctAnswer})">
+                                    ${option}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    console.error('获取题目失败:', response.message);
+                    // 如果API调用失败，使用默认题目
+                    loadDefaultQuiz();
+                }
+            } catch (error) {
+                console.error('加载下一题时出错:', error);
+                // 如果出现错误，使用默认题目
+                loadDefaultQuiz();
+            }
+        }
+        
+        function loadDefaultQuiz() {
+            // 使用默认测验数据作为备用
             const defaultQuiz = {
                 id: 1,
                 question: 'What does "API" stand for?',

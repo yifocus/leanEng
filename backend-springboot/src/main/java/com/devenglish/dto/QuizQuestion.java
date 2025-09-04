@@ -9,7 +9,7 @@ public class QuizQuestion {
     private Long id;
     private String question;
     private String options;
-    private String correctAnswer;
+    private Integer correctAnswer;
     private String category;
     private String difficulty;
     private String explanation;

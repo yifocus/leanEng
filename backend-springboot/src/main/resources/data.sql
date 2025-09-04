@@ -77,6 +77,7 @@ CREATE TABLE IF NOT EXISTS achievements (
 CREATE TABLE IF NOT EXISTS quiz_questions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     question TEXT NOT NULL,
+    type VARCHAR(50) DEFAULT 'GENERAL',
     options TEXT,
     correct_answer VARCHAR(200),
     category VARCHAR(50),
@@ -106,11 +107,30 @@ INSERT INTO scenarios (name, description, avatar, role, difficulty, category, es
 ('Daily Stand-up', 'Participate in a daily scrum meeting', '👥', 'Scrum Team', 'BEGINNER', 'Scrum', 10),
 ('Technical Interview', 'Practice for a technical interview at a Silicon Valley company', '👔', 'Technical Interviewer', 'ADVANCED', 'Interview', 30);
 
+-- 初始化用户答题历史表
+CREATE TABLE IF NOT EXISTS user_quiz_history (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    quiz_id BIGINT NOT NULL,
+    user_answer VARCHAR(10),
+    is_correct BOOLEAN NOT NULL,
+    time_spent INT,
+    xp_earned INT DEFAULT 0,
+    answer_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    quiz_type VARCHAR(50),
+    quiz_difficulty VARCHAR(20),
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_user_id (user_id),
+    INDEX idx_quiz_id (quiz_id),
+    INDEX idx_answer_time (answer_time)
+);
+
 -- 插入示例测验题目
-INSERT INTO quiz_questions (question, options, correct_answer, category, difficulty, explanation) VALUES
-('What does "refactor" mean in software development?', '["Add new features", "Restructure existing code without changing functionality", "Delete old code", "Write documentation"]', 'Restructure existing code without changing functionality', 'Development', 'BEGINNER', 'Refactoring improves code structure and readability without altering its external behavior.'),
-('Which HTTP status code indicates "Not Found"?', '["200", "404", "500", "301"]', '404', 'Web Development', 'BEGINNER', 'HTTP 404 indicates that the requested resource could not be found on the server.'),
-('What is the purpose of a REST API?', '["Database management", "Enable communication between different software systems", "Compile code", "Design user interfaces"]', 'Enable communication between different software systems', 'API', 'INTERMEDIATE', 'REST APIs provide a standardized way for different applications to communicate over HTTP.');
+INSERT INTO quiz_questions (question, type, options, correct_answer, category, difficulty, explanation) VALUES
+('What does "refactor" mean in software development?', 'VOCABULARY', '["Add new features", "Restructure existing code without changing functionality", "Delete old code", "Write documentation"]', 'Restructure existing code without changing functionality', 'Development', 'BEGINNER', 'Refactoring improves code structure and readability without altering its external behavior.'),
+('Which HTTP status code indicates "Not Found"?', 'TECHNICAL', '["200", "404", "500", "301"]', '404', 'Web Development', 'BEGINNER', 'HTTP 404 indicates that the requested resource could not be found on the server.'),
+('What is the purpose of a REST API?', 'TECHNICAL', '["Database management", "Enable communication between different software systems", "Compile code", "Design user interfaces"]', 'Enable communication between different software systems', 'API', 'INTERMEDIATE', 'REST APIs provide a standardized way for different applications to communicate over HTTP.');
 
 -- 插入示例成就数据
 INSERT INTO achievements (name, description, icon, xp_reward, requirement_type, requirement_value) VALUES
