@@ -70,4 +70,28 @@ public interface VocabularyMapper extends BaseMapper<Vocabulary> {
      */
     @Select("SELECT * FROM vocabulary WHERE term LIKE CONCAT('%', #{query}, '%') OR definition LIKE CONCAT('%', #{query}, '%') OR translation LIKE CONCAT('%', #{query}, '%') LIMIT #{limit}")
     List<Vocabulary> searchVocabulary(@Param("query") String query, @Param("limit") int limit);
+    
+    /**
+     * 查询所有父词汇（parent_id为null的词汇）
+     * @param offset 偏移量
+     * @param size 页面大小
+     * @return 父词汇列表
+     */
+    @Select("SELECT * FROM vocabulary WHERE parent_id IS NULL ORDER BY id LIMIT #{offset}, #{size}")
+    List<Vocabulary> findParentVocabulary(@Param("offset") int offset, @Param("size") int size);
+    
+    /**
+     * 根据父词汇ID查询子词汇
+     * @param parentId 父词汇ID
+     * @return 子词汇列表
+     */
+    @Select("SELECT * FROM vocabulary WHERE parent_id = #{parentId} ORDER BY id")
+    List<Vocabulary> findChildrenByParentId(@Param("parentId") Long parentId);
+    
+    /**
+     * 查询所有词汇的树形结构
+     * @return 所有词汇列表
+     */
+    @Select("SELECT * FROM vocabulary ORDER BY COALESCE(parent_id, id), id")
+    List<Vocabulary> findAllWithHierarchy();
 }

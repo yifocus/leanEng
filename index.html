@@ -367,16 +367,82 @@
             font-size: 12px;
             color: var(--accent-purple);
             margin-right: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .term-category:hover {
+            background: var(--accent-purple);
+            color: white;
         }
 
         .term-definition {
             color: var(--text-secondary);
             margin-top: 10px;
-            display: none;
+            display: none !important;
         }
 
         .term-card.expanded .term-definition {
-            display: block;
+            display: block !important;
+        }
+
+        /* 确保子词汇的详情默认隐藏 */
+        .child-term .term-definition {
+            display: none !important;
+        }
+
+        .child-term.expanded .term-definition {
+            display: block !important;
+        }
+
+        /* 树形展开样式 */
+        .term-card.has-children {
+            border-left: 3px solid var(--accent-green);
+        }
+
+        .term-card.has-children:hover {
+            border-left-color: var(--accent-orange);
+        }
+
+        .expand-icon {
+            display: inline-block;
+            margin-right: 8px;
+            transition: transform 0.3s ease;
+            color: var(--accent-blue);
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .expand-icon:hover {
+            color: var(--accent-orange);
+            transform: scale(1.2);
+        }
+
+        .children-container {
+            margin-top: 15px;
+            padding-left: 20px;
+            border-left: 2px solid var(--border-color);
+        }
+
+        .child-term {
+            margin: 8px 0;
+            background: var(--bg-primary);
+            border-left: 2px solid var(--accent-purple);
+        }
+
+        .child-term:hover {
+            border-left-color: var(--accent-orange);
+            transform: translateX(3px);
+        }
+
+        .child-term .term-title {
+            font-size: 14px;
+            color: var(--accent-purple);
+        }
+
+        .child-term .term-category {
+            background: rgba(138, 43, 226, 0.1);
+            color: var(--accent-purple);
         }
 
         .loading {
@@ -413,6 +479,46 @@
             font-size: 48px;
             margin-bottom: 20px;
             opacity: 0.5;
+        }
+        
+        .loading-placeholder {
+            text-align: center;
+            color: #999;
+            padding: 15px;
+            font-style: italic;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            margin: 5px 0;
+            position: relative;
+        }
+        
+        .loading-placeholder::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-left: 8px;
+            border: 2px solid #ccc;
+            border-top: 2px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-state {
+            text-align: center;
+            color: #dc3545;
+            padding: 15px;
+            font-style: italic;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            margin: 5px 0;
         }
 
         .quiz-container {
@@ -1250,7 +1356,7 @@
 
     <script>
         // API配置
-        const API_BASE = 'http://localhost:8081/api';
+        const API_BASE = '/api';
         let authToken = localStorage.getItem('token');
         let currentUser = null;
         // currentScenarioId already declared above
@@ -1684,6 +1790,7 @@
 
         // 加载词汇列表
         async function loadVocabulary(keyword = '') {
+            console.log('loadVocabulary called with keyword:', keyword);
             const vocabContainer = document.getElementById('vocabularyList');
             
             // 默认词汇数据
@@ -1698,10 +1805,13 @@
             try {
                 const url = keyword 
                     ? `/vocabulary/search?query=${encodeURIComponent(keyword)}`
-                    : '/vocabulary/list?page=1&size=20';
-                    
+                    : '/vocabulary/parents?page=1&size=20';
+                
+                console.log('Making API request to:', API_BASE + url);
                 const response = await apiRequest(url);
-                const vocabulary = response.data || defaultVocabulary;
+                console.log('API response received:', response);
+                // 后端返回的是Result格式: {success: true, data: [...], message: ''}
+                const vocabulary = (response && response.data) ? response.data : defaultVocabulary;
                 
                 if (vocabulary.length === 0) {
                     vocabContainer.innerHTML = '<div class="empty-state">暂无词汇数据</div>';
@@ -1710,6 +1820,7 @@
                 
                 displayVocabularyList(vocabulary);
             } catch (error) {
+                console.error('loadVocabulary error:', error);
                 console.log('使用默认词汇数据');
                 displayVocabularyList(defaultVocabulary);
             }
@@ -1719,18 +1830,399 @@
             const vocabContainer = document.getElementById('vocabularyList');
             if (!vocabContainer) return;
             
-            vocabContainer.innerHTML = vocabulary.map(vocab => `
-                <div class="term-card" onclick="toggleTerm(this)">
-                    <div class="term-title">${vocab.word || vocab.term}</div>
-                    <span class="term-category">${vocab.tags ? vocab.tags[0] : (vocab.category || 'General')}</span>
-                    <div class="term-definition">
-                        ${vocab.meaning || vocab.definition}
-                        ${vocab.pronunciation ? `<br>发音: ${vocab.pronunciation}` : ''}
-                        ${vocab.example || vocab.exampleSentence ? `<br><br>例句: ${vocab.example || vocab.exampleSentence}` : ''}
-                        ${vocab.translation ? `<br>中文: ${vocab.translation}` : ''}
+            vocabContainer.innerHTML = vocabulary.map(vocab => {
+                // 处理tags字段，支持字符串和数组格式
+                let displayTag = '通用';
+                if (vocab.tags) {
+                    if (Array.isArray(vocab.tags)) {
+                        displayTag = vocab.tags[0] || '通用';
+                    } else if (typeof vocab.tags === 'string') {
+                        displayTag = vocab.tags.split(',')[0] || '通用';
+                    }
+                } else if (vocab.category) {
+                    displayTag = vocab.category;
+                }
+                
+                // 检查是否为父词汇（根据isParent字段或者有parent_id为null）
+                const hasChildren = vocab.isParent === true || (vocab.parentId === null && vocab.id);
+                const expandIcon = hasChildren ? '<span class="expand-icon">▶</span>' : '';
+                
+                // 为父词汇创建空的子词汇容器，稍后动态加载
+                let childrenHtml = '';
+                if (hasChildren) {
+                    childrenHtml = `
+                        <div class="children-container" style="display: none;" data-parent-id="${vocab.id}">
+                            <div class="loading-placeholder">正在加载子词汇...</div>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="term-card parent-term ${hasChildren ? 'has-children' : ''}" data-vocabulary-id="${vocab.id}">
+                        <div class="term-title" onclick="${hasChildren ? 'toggleParentList(this, event)' : 'toggleTerm(this, event)'}">
+                            ${expandIcon}
+                            ${vocab.term || vocab.word} - ${vocab.definition || vocab.meaning}
+                        </div>
+                        <span class="term-category" onclick="toggleParentDetail(this, event)">${displayTag}</span>
+                        <div class="term-definition">
+                            <!-- 详情内容将按需加载 -->
+                        </div>
+                        ${childrenHtml}
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
+        }
+
+        // 树形展开功能
+        function toggleChildren(element, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            const childrenContainer = element.querySelector('.children-container');
+            const expandIcon = element.querySelector('.expand-icon');
+            
+            // 展开/折叠子词汇列表
+            if (childrenContainer) {
+                const isVisible = childrenContainer.style.display !== 'none';
+                childrenContainer.style.display = isVisible ? 'none' : 'block';
+                if (expandIcon) {
+                    expandIcon.textContent = isVisible ? '▶' : '▼';
+                }
+                
+                // 无论展开还是折叠子词汇列表，都确保所有子词汇的详情保持隐藏状态
+                const childTerms = childrenContainer.querySelectorAll('.child-term');
+                childTerms.forEach(childTerm => {
+                    childTerm.classList.remove('expanded');
+                });
+            }
+            
+            // 注释掉：不要同时展开父词汇的详情，只控制子词汇列表的显示
+            // element.classList.toggle('expanded');
+        }
+        
+        // 词汇项点击功能
+        function toggleTerm(element, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            // 切换词汇的展开状态
+            element.classList.toggle('expanded');
+            console.log('词汇项被点击:', element.querySelector('.term-title').textContent);
+        }
+        
+        // 子词汇项点击功能
+        async function toggleChildTerm(element, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            
+            // 切换子词汇详情的显示状态
+            const termDefinition = element.querySelector('.term-definition');
+            if (termDefinition) {
+                const isVisible = termDefinition.style.display === 'block';
+                
+                if (!isVisible) {
+                    // 检查是否需要加载详情数据
+                    const vocabularyId = element.getAttribute('data-vocabulary-id');
+                    const hasDetailContent = termDefinition.querySelector('strong');
+                    
+                    if (vocabularyId && !hasDetailContent) {
+                        // 显示加载状态
+                        termDefinition.innerHTML = '<div class="loading-placeholder">正在加载详情...</div>';
+                        termDefinition.style.display = 'block';
+                        
+                        try {
+                            // 调用接口获取完整详情
+                            const response = await apiRequest(`/vocabulary/detail/${vocabularyId}`);
+                            // 后端返回的是Result格式: {code: 200, data: {...}, message: 'Success'}
+                            if (response && response.code === 200 && response.data) {
+                                const vocab = response.data;
+                                // 更新详情内容
+                                termDefinition.innerHTML = `
+                                    <strong>英文:</strong> ${vocab.term || vocab.word}<br>
+                            <strong>释义:</strong> ${vocab.definition || vocab.meaning}
+                                    ${vocab.pronunciation ? `<br><strong>发音:</strong> ${vocab.pronunciation}` : ''}
+                                    ${vocab.exampleSentence || vocab.example ? `<br><br><strong>例句:</strong> ${vocab.exampleSentence || vocab.example}` : ''}
+                                    ${vocab.translation ? `<br><strong>中文:</strong> ${vocab.translation}` : ''}
+                                `;
+                            } else {
+                                termDefinition.innerHTML = '<div class="error-state">加载详情失败</div>';
+                            }
+                        } catch (error) {
+                            console.error('加载子词汇详情失败:', error);
+                            termDefinition.innerHTML = '<div class="error-state">加载详情失败</div>';
+                        }
+                    } else {
+                        termDefinition.style.display = 'block';
+                    }
+                } else {
+                    termDefinition.style.display = 'none';
+                }
+                
+                element.classList.toggle('expanded', termDefinition.style.display === 'block');
+            }
+            console.log('子词汇项被点击:', element.querySelector('.term-title').textContent);
+        }
+        
+        // 父词汇详情按需加载功能
+        async function toggleParentDetail(element, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            
+            console.log('toggleParentDetail被调用');
+            
+            // 找到父词汇卡片
+            const parentCard = element.closest('.term-card');
+            if (parentCard) {
+                const isExpanded = parentCard.classList.contains('expanded');
+                console.log('当前展开状态:', isExpanded);
+                
+                if (!isExpanded) {
+                    // 检查是否需要加载详情数据
+                    const vocabularyId = parentCard.getAttribute('data-vocabulary-id');
+                    const termDefinition = parentCard.querySelector('.term-definition');
+                    const hasDetailContent = termDefinition && termDefinition.querySelector('strong');
+                    
+                    console.log('词汇ID:', vocabularyId);
+                    console.log('详情容器:', termDefinition);
+                    console.log('已有详情内容:', hasDetailContent);
+                    
+                    if (vocabularyId && termDefinition && !hasDetailContent) {
+                        // 显示加载状态
+                        const originalContent = termDefinition.innerHTML;
+                        termDefinition.innerHTML = '<div class="loading-placeholder">正在加载详情...</div>';
+                        console.log('开始加载详情...');
+                        
+                        try {
+                            // 调用接口获取完整详情
+                            const response = await apiRequest(`/vocabulary/detail/${vocabularyId}`);
+                            console.log('详情API响应:', response);
+                            
+                            // 后端返回的是Result格式: {success: true, data: {...}, message: ''}
+                            if (response && response.success && response.data) {
+                                const vocab = response.data;
+                                console.log('词汇详情数据:', vocab);
+                                
+                                // 更新详情内容
+                                termDefinition.innerHTML = `
+                                    <strong>英文:</strong> ${vocab.term || vocab.word}<br>
+                                    <strong>释义:</strong> ${vocab.definition || vocab.meaning}
+                                    ${vocab.pronunciation ? `<br><strong>发音:</strong> ${vocab.pronunciation}` : ''}
+                                    ${vocab.exampleSentence || vocab.example ? `<br><br><strong>例句:</strong> ${vocab.exampleSentence || vocab.example}` : ''}
+                                    ${vocab.translation ? `<br><strong>中文:</strong> ${vocab.translation}` : ''}
+                                `;
+                                console.log('详情内容已更新');
+                            } else {
+                                console.error('API响应格式错误:', response);
+                                termDefinition.innerHTML = originalContent + '<div class="error-state">加载详情失败</div>';
+                            }
+                        } catch (error) {
+                            console.error('加载父词汇详情失败:', error);
+                            termDefinition.innerHTML = originalContent + '<div class="error-state">加载详情失败</div>';
+                        }
+                    }
+                }
+                
+                // 切换父词汇的详情展开状态
+                parentCard.classList.toggle('expanded');
+                console.log('父词汇详情被点击:', parentCard.querySelector('.term-title').textContent);
+                console.log('新的展开状态:', parentCard.classList.contains('expanded'));
+            }
+        }
+        
+        // 父词汇详情展开功能（不影响子词汇列表）- 保留备用
+        function toggleParentTerm(element, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            // 找到父词汇卡片
+            const parentCard = element.closest('.term-card');
+            if (parentCard) {
+                // 只切换父词汇的详情展开状态
+                parentCard.classList.toggle('expanded');
+                console.log('父词汇详情被点击:', parentCard.querySelector('.term-title').textContent);
+            }
+        }
+        
+        // 父词汇列表展开功能（同时展开子列表和父词汇详情）
+        async function toggleParentList(element, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            
+            // 找到父词汇卡片
+            const parentCard = element.closest('.term-card');
+            if (parentCard) {
+                const isCurrentlyExpanded = parentCard.classList.contains('expanded');
+                
+                // 1. 首先处理父词汇详情的展示
+                if (!isCurrentlyExpanded) {
+                    // 检查是否需要加载父词汇详情数据
+                    const vocabularyId = parentCard.getAttribute('data-vocabulary-id');
+                    const termDefinition = parentCard.querySelector('.term-definition');
+                    const hasDetailContent = termDefinition && termDefinition.querySelector('strong');
+                    
+                    if (vocabularyId && termDefinition && !hasDetailContent) {
+                        // 显示加载状态
+                        const originalContent = termDefinition.innerHTML;
+                        termDefinition.innerHTML = '<div class="loading-placeholder">正在加载详情...</div>';
+                        
+                        try {
+                            // 调用接口获取完整详情
+                            const response = await apiRequest(`/vocabulary/detail/${vocabularyId}`);
+                            // 后端返回的是Result格式: {code: 200, data: {...}, message: 'Success'}
+                            if (response && response.code === 200 && response.data) {
+                                const vocab = response.data;
+                                // 更新详情内容
+                                termDefinition.innerHTML = `
+                                    <strong>英文:</strong> ${vocab.term || vocab.word}<br>
+                                    <strong>释义:</strong> ${vocab.definition || vocab.meaning}
+                                    ${vocab.pronunciation ? `<br><strong>发音:</strong> ${vocab.pronunciation}` : ''}
+                                    ${vocab.exampleSentence || vocab.example ? `<br><br><strong>例句:</strong> ${vocab.exampleSentence || vocab.example}` : ''}
+                                    ${vocab.translation ? `<br><strong>中文:</strong> ${vocab.translation}` : ''}
+                                `;
+                            } else {
+                                termDefinition.innerHTML = originalContent + '<div class="error-state">加载详情失败</div>';
+                            }
+                        } catch (error) {
+                            console.error('加载父词汇详情失败:', error);
+                            termDefinition.innerHTML = originalContent + '<div class="error-state">加载详情失败</div>';
+                        }
+                    }
+                }
+                
+                // 2. 然后处理子词汇列表的展开
+                const childrenContainer = parentCard.querySelector('.children-container');
+                const expandIcon = parentCard.querySelector('.expand-icon');
+                
+                if (childrenContainer) {
+                    const isChildrenVisible = childrenContainer.style.display !== 'none';
+                    
+                    if (!isChildrenVisible) {
+                        // 检查是否需要加载子词汇数据
+                        const parentId = childrenContainer.getAttribute('data-parent-id');
+                        const loadingPlaceholder = childrenContainer.querySelector('.loading-placeholder');
+                        
+                        if (parentId && loadingPlaceholder) {
+                            // 动态加载子词汇数据
+                            await loadChildVocabulary(parentId, childrenContainer);
+                        }
+                    }
+                    
+                    childrenContainer.style.display = isChildrenVisible ? 'none' : 'block';
+                    if (expandIcon) {
+                        expandIcon.textContent = isChildrenVisible ? '▶' : '▼';
+                    }
+                    
+                    // 确保所有子词汇的详情保持隐藏状态
+                    const childTerms = childrenContainer.querySelectorAll('.child-term');
+                    childTerms.forEach(childTerm => {
+                        childTerm.classList.remove('expanded');
+                        // 强制隐藏子词汇的详情内容
+                        const childDefinition = childTerm.querySelector('.term-definition');
+                        if (childDefinition) {
+                            childDefinition.style.display = 'none';
+                        }
+                    });
+                }
+                
+                // 3. 最后切换父词汇的展开状态
+                parentCard.classList.toggle('expanded');
+                
+                console.log('父词汇完整切换:', parentCard.querySelector('.term-title').textContent);
+                console.log('新的展开状态:', parentCard.classList.contains('expanded'));
+            }
+        }
+        
+        // 父词汇完整点击功能（同时展开详情和子列表）- 保留备用
+        async function toggleParentComplete(element, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            
+            // 找到父词汇卡片
+            const parentCard = element.closest('.term-card');
+            if (parentCard) {
+                // 展开父词汇详情
+                parentCard.classList.add('expanded');
+                
+                // 展开子词汇列表
+                const childrenContainer = parentCard.querySelector('.children-container');
+                const expandIcon = parentCard.querySelector('.expand-icon');
+                
+                if (childrenContainer) {
+                    // 检查是否需要加载子词汇数据
+                    const parentId = childrenContainer.getAttribute('data-parent-id');
+                    const loadingPlaceholder = childrenContainer.querySelector('.loading-placeholder');
+                    
+                    if (parentId && loadingPlaceholder) {
+                        // 动态加载子词汇数据
+                        await loadChildVocabulary(parentId, childrenContainer);
+                    }
+                    
+                    childrenContainer.style.display = 'block';
+                    if (expandIcon) {
+                        expandIcon.textContent = '▼';
+                    }
+                    
+                    // 确保所有子词汇的详情保持隐藏状态
+                    const childTerms = childrenContainer.querySelectorAll('.child-term');
+                    childTerms.forEach(childTerm => {
+                        childTerm.classList.remove('expanded');
+                        // 强制隐藏子词汇的详情内容
+                        const childDefinition = childTerm.querySelector('.term-definition');
+                        if (childDefinition) {
+                            childDefinition.style.display = 'none';
+                        }
+                    });
+                }
+                
+                console.log('父词汇完整点击:', parentCard.querySelector('.term-title').textContent);
+            }
+        }
+
+        // 动态加载子词汇数据
+        async function loadChildVocabulary(parentId, container) {
+            try {
+                const response = await apiRequest(`/vocabulary/children/${parentId}`);
+                // 后端返回的是Result格式: {success: true, data: [...], message: ''}
+                const children = (response && response.data) ? response.data : [];
+                
+                if (children.length === 0) {
+                    container.innerHTML = '<div class="empty-state">暂无子词汇</div>';
+                    return;
+                }
+                
+                // 生成子词汇HTML
+                const childrenHtml = children.map(child => {
+                    let childTag = '通用';
+                    if (child.tags) {
+                        if (Array.isArray(child.tags)) {
+                            childTag = child.tags[0] || '通用';
+                        } else if (typeof child.tags === 'string') {
+                            childTag = child.tags.split(',')[0] || '通用';
+                        }
+                    } else if (child.category) {
+                        childTag = child.category;
+                    }
+                    
+                    return `
+                        <div class="term-card child-term" data-vocabulary-id="${child.id}" onclick="toggleChildTerm(this, event)">
+                            <div class="term-title">${child.word || child.term} - ${child.meaning || child.definition}</div>
+                            <span class="term-category">${childTag}</span>
+                            <div class="term-definition" style="display: none;">
+                                <!-- 详情内容将按需加载 -->
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                container.innerHTML = childrenHtml;
+            } catch (error) {
+                console.error('加载子词汇失败:', error);
+                container.innerHTML = '<div class="error-state">加载子词汇失败，请稍后重试</div>';
+            }
         }
 
         // 词汇搜索
@@ -2516,6 +3008,12 @@
 
         // 初始化应用
         checkAuth();
+        
+        // 手动测试vocabulary加载
+        setTimeout(() => {
+            console.log('Manual vocabulary test starting...');
+            loadVocabulary();
+        }, 2000);
     </script>
 </body>
 </html>

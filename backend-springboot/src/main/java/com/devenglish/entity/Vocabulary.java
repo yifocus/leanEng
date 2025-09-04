@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @TableName("vocabulary")
@@ -30,6 +31,15 @@ public class Vocabulary implements Serializable {
     private String tags;
     
     private Integer learnCount;
+    
+    // 父子关系字段
+    private Long parentId;
+    
+    private Boolean isParent;
+    
+    // 子词汇列表（不存储在数据库中）
+    @TableField(exist = false)
+    private List<Vocabulary> children;
     
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

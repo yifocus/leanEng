@@ -55,4 +55,29 @@ public class VocabularyServiceImpl implements VocabularyService {
     public List<Vocabulary> searchVocabulary(String query) {
         return vocabularyMapper.searchVocabulary(query, 10);
     }
+    
+    @Override
+    public void updateById(Vocabulary vocabulary) {
+        vocabularyMapper.updateById(vocabulary);
+    }
+    
+    @Override
+    public List<Vocabulary> getParentVocabulary(Integer page, Integer size) {
+        int offset = (page - 1) * size;
+        
+        // 只获取父词汇列表，不加载子词汇详情
+        return vocabularyMapper.findParentVocabulary(offset, size);
+    }
+    
+    @Override
+    public List<Vocabulary> getChildrenByParentId(Long parentId) {
+        // 根据父词汇ID获取子词汇列表
+        return vocabularyMapper.findChildrenByParentId(parentId);
+    }
+    
+    @Override
+    public Vocabulary getVocabularyFullDetail(Long id) {
+        // 获取词汇完整详情，包括所有字段
+        return vocabularyMapper.selectById(id);
+    }
 }

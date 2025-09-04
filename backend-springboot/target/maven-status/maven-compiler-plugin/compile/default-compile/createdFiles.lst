@@ -1,6 +1,7 @@
 com\devenglish\entity\DailyTask.class
 com\devenglish\mapper\UserAchievementMapper.class
 com\devenglish\dto\ChatMessage.class
+com\devenglish\mapper\QuizMapper.class
 com\devenglish\dto\ProgressResponse.class
 com\devenglish\mapper\QuizQuestionMapper.class
 com\devenglish\security\JwtAuthenticationFilter.class
@@ -17,6 +18,7 @@ com\devenglish\dto\RegisterRequest.class
 com\devenglish\mapper\AchievementMapper.class
 com\devenglish\dto\ScenarioDetailResponse$ScenarioProgress$ScenarioProgressBuilder.class
 com\devenglish\entity\CodingChallenge.class
+com\devenglish\service\impl\GameServiceImpl.class
 com\devenglish\dto\UserInfoResponse.class
 com\devenglish\service\ScenarioService.class
 com\devenglish\dto\ScenarioResponse.class
@@ -53,6 +55,7 @@ com\devenglish\DevEnglishApplication.class
 com\devenglish\service\GameService.class
 com\devenglish\dto\UserInfoResponse$UserInfoResponseBuilder.class
 com\devenglish\entity\Quiz$QuizBuilder.class
+com\devenglish\mapper\VocabularyMapper.class
 com\devenglish\dto\ScenarioDetailResponse$ScenarioProgress.class
 com\devenglish\entity\Vocabulary.class
 com\devenglish\entity\User.class

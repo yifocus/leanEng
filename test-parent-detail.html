@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试父词汇详情功能</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .term-card {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        .term-card:hover {
+            border-left-color: #00aaff;
+            transform: translateX(5px);
+        }
+        .term-title {
+            color: #ff9500;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .term-category {
+            display: inline-block;
+            background: #3d3d3d;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #8a2be2;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .term-category:hover {
+            background: #8a2be2;
+            color: white;
+        }
+        .term-definition {
+            color: #b0b0b0;
+            margin-top: 10px;
+            display: none !important;
+        }
+        .term-card.expanded .term-definition {
+            display: block !important;
+        }
+        .loading-placeholder {
+            color: #888;
+            font-style: italic;
+        }
+        .error-state {
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+    <h1>测试父词汇详情功能</h1>
+    <p>点击分类标签来展示父词汇详情</p>
+    
+    <div id="vocabularyList">
+        <div class="loading">加载词汇中...</div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        
+        // API请求函数
+        async function apiRequest(endpoint, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API请求失败:', error);
+                throw error;
+            }
+        }
+        
+        // 加载父词汇列表
+        async function loadVocabulary() {
+            try {
+                console.log('开始加载父词汇列表...');
+                const response = await apiRequest('/vocabulary/parents?page=1&size=5');
+                console.log('API响应:', response);
+                
+                if (response && response.success && response.data) {
+                    displayVocabularyList(response.data);
+                } else {
+                    console.error('API响应格式错误:', response);
+                }
+            } catch (error) {
+                console.error('加载词汇失败:', error);
+                document.getElementById('vocabularyList').innerHTML = '<div class="error-state">加载失败</div>';
+            }
+        }
+        
+        // 显示词汇列表
+        function displayVocabularyList(vocabulary) {
+            const vocabContainer = document.getElementById('vocabularyList');
+            if (!vocabContainer) return;
+            
+            vocabContainer.innerHTML = vocabulary.map(vocab => {
+                let displayTag = vocab.category || '通用';
+                
+                return `
+                    <div class="term-card" data-vocabulary-id="${vocab.id}">
+                        <div class="term-title">
+                            ${vocab.term || vocab.word} - ${vocab.definition || vocab.meaning}
+                        </div>
+                        <span class="term-category" onclick="toggleParentDetail(this, event)">${displayTag}</span>
+                        <div class="term-definition">
+                            <!-- 详情内容将按需加载 -->
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 父词汇详情按需加载功能
+        async function toggleParentDetail(element, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            
+            console.log('toggleParentDetail被调用');
+            
+            // 找到父词汇卡片
+            const parentCard = element.closest('.term-card');
+            if (parentCard) {
+                const isExpanded = parentCard.classList.contains('expanded');
+                console.log('当前展开状态:', isExpanded);
+                
+                if (!isExpanded) {
+                    // 检查是否需要加载详情数据
+                    const vocabularyId = parentCard.getAttribute('data-vocabulary-id');
+                    const termDefinition = parentCard.querySelector('.term-definition');
+                    const hasDetailContent = termDefinition && termDefinition.querySelector('strong');
+                    
+                    console.log('词汇ID:', vocabularyId);
+                    console.log('已有详情内容:', hasDetailContent);
+                    
+                    if (vocabularyId && termDefinition && !hasDetailContent) {
+                        // 显示加载状态
+                        const originalContent = termDefinition.innerHTML;
+                        termDefinition.innerHTML = '<div class="loading-placeholder">正在加载详情...</div>';
+                        
+                        try {
+                            console.log('开始调用API获取详情...');
+                            // 调用接口获取完整详情
+                            const response = await apiRequest(`/vocabulary/detail/${vocabularyId}`);
+                            console.log('详情API响应:', response);
+                            
+                            // 后端返回的是Result格式: {success: true, data: {...}, message: ''}
+                            if (response && response.success && response.data) {
+                                const vocab = response.data;
+                                console.log('词汇详情数据:', vocab);
+                                
+                                // 更新详情内容
+                                termDefinition.innerHTML = `
+                                    <strong>英文:</strong> ${vocab.term || vocab.word}<br>
+                                    <strong>释义:</strong> ${vocab.definition || vocab.meaning}
+                                    ${vocab.pronunciation ? `<br><strong>发音:</strong> ${vocab.pronunciation}` : ''}
+                                    ${vocab.exampleSentence || vocab.example ? `<br><br><strong>例句:</strong> ${vocab.exampleSentence || vocab.example}` : ''}
+                                    ${vocab.translation ? `<br><strong>中文:</strong> ${vocab.translation}` : ''}
+                                `;
+                                console.log('详情内容已更新');
+                            } else {
+                                console.error('API响应格式错误:', response);
+                                termDefinition.innerHTML = originalContent + '<div class="error-state">加载详情失败</div>';
+                            }
+                        } catch (error) {
+                            console.error('加载父词汇详情失败:', error);
+                            termDefinition.innerHTML = originalContent + '<div class="error-state">加载详情失败</div>';
+                        }
+                    }
+                }
+                
+                // 切换父词汇的详情展开状态
+                parentCard.classList.toggle('expanded');
+                console.log('父词汇详情被点击:', parentCard.querySelector('.term-title').textContent);
+                console.log('新的展开状态:', parentCard.classList.contains('expanded'));
+            }
+        }
+        
+        // 页面加载完成后自动加载词汇
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面加载完成，开始加载词汇...');
+            loadVocabulary();
+        });
+    </script>
+</body>
+</html>

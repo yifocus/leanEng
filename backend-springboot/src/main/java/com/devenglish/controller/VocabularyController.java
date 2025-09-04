@@ -60,4 +60,32 @@ public class VocabularyController {
     public Result<List<Vocabulary>> searchVocabulary(@RequestParam String query) {
         return Result.success(vocabularyService.searchVocabulary(query));
     }
+    
+    /*@PutMapping("/{id}")
+    @Operation(summary = "更新词汇定义")
+    public Result<Void> updateVocabulary(@PathVariable Long id, @RequestBody Vocabulary vocabulary) {
+        vocabulary.setId(id);
+        vocabularyService.updateById(vocabulary);
+        return Result.success();
+    }*/
+    
+    @GetMapping("/parents")
+    @Operation(summary = "获取父词汇列表")
+    public Result<List<Vocabulary>> getParentVocabulary(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "20") Integer size) {
+        return Result.success(vocabularyService.getParentVocabulary(page, size));
+    }
+    
+    @GetMapping("/children/{parentId}")
+    @Operation(summary = "根据父词汇ID获取子词汇列表")
+    public Result<List<Vocabulary>> getChildrenVocabulary(@PathVariable Long parentId) {
+        return Result.success(vocabularyService.getChildrenByParentId(parentId));
+    }
+    
+    @GetMapping("/detail/{id}")
+    @Operation(summary = "获取词汇完整详情")
+    public Result<Vocabulary> getVocabularyFullDetail(@PathVariable Long id) {
+        return Result.success(vocabularyService.getVocabularyFullDetail(id));
+    }
 }
