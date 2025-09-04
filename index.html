@@ -1356,7 +1356,7 @@
 
     <script>
         // API配置
-        const API_BASE = '/api';
+        const API_BASE = 'http://localhost:8081/api';
         let authToken = localStorage.getItem('token');
         let currentUser = null;
         // currentScenarioId already declared above
@@ -1940,9 +1940,11 @@
                                 // 更新详情内容
                                 termDefinition.innerHTML = `
                                     <strong>英文:</strong> ${vocab.term || vocab.word}<br>
-                            <strong>释义:</strong> ${vocab.definition || vocab.meaning}
+                                    <strong>释义:</strong> ${vocab.definition || vocab.meaning}
+                                    ${vocab.definitionCn ? `<br><strong>中文释义:</strong> ${vocab.definitionCn}` : ''}
                                     ${vocab.pronunciation ? `<br><strong>发音:</strong> ${vocab.pronunciation}` : ''}
                                     ${vocab.exampleSentence || vocab.example ? `<br><br><strong>例句:</strong> ${vocab.exampleSentence || vocab.example}` : ''}
+                                    ${vocab.exampleSentenceCn ? `<br><strong>中文例句:</strong> ${vocab.exampleSentenceCn}` : ''}
                                     ${vocab.translation ? `<br><strong>中文:</strong> ${vocab.translation}` : ''}
                                 `;
                             } else {
@@ -2008,8 +2010,10 @@
                                 termDefinition.innerHTML = `
                                     <strong>英文:</strong> ${vocab.term || vocab.word}<br>
                                     <strong>释义:</strong> ${vocab.definition || vocab.meaning}
+                                    ${vocab.definitionCn ? `<br><strong>中文释义:</strong> ${vocab.definitionCn}` : ''}
                                     ${vocab.pronunciation ? `<br><strong>发音:</strong> ${vocab.pronunciation}` : ''}
                                     ${vocab.exampleSentence || vocab.example ? `<br><br><strong>例句:</strong> ${vocab.exampleSentence || vocab.example}` : ''}
+                                    ${vocab.exampleSentenceCn ? `<br><strong>中文例句:</strong> ${vocab.exampleSentenceCn}` : ''}
                                     ${vocab.translation ? `<br><strong>中文:</strong> ${vocab.translation}` : ''}
                                 `;
                                 console.log('详情内容已更新');
@@ -2078,8 +2082,10 @@
                                 termDefinition.innerHTML = `
                                     <strong>英文:</strong> ${vocab.term || vocab.word}<br>
                                     <strong>释义:</strong> ${vocab.definition || vocab.meaning}
+                                    ${vocab.definitionCn ? `<br><strong>中文释义:</strong> ${vocab.definitionCn}` : ''}
                                     ${vocab.pronunciation ? `<br><strong>发音:</strong> ${vocab.pronunciation}` : ''}
                                     ${vocab.exampleSentence || vocab.example ? `<br><br><strong>例句:</strong> ${vocab.exampleSentence || vocab.example}` : ''}
+                                    ${vocab.exampleSentenceCn ? `<br><strong>中文例句:</strong> ${vocab.exampleSentenceCn}` : ''}
                                     ${vocab.translation ? `<br><strong>中文:</strong> ${vocab.translation}` : ''}
                                 `;
                             } else {

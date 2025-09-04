@@ -18,11 +18,15 @@ public class Vocabulary implements Serializable {
     
     private String definition;
     
+    private String definitionCn;
+    
     private String category;
     
     private String pronunciation;
     
     private String exampleSentence;
+    
+    private String exampleSentenceCn;
     
     private String translation;
     
